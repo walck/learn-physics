@@ -43,8 +43,8 @@ Library
   Hs-source-dirs:      src
 
 Source-repository head
-  type:                darcs
-  location:            http://hub.darcs.net/scottwalck/learn-physics
+  type:                git
+  location:            https://github.com/walck/learn-physics
 
 Executable           learn-physics-PlaneWave
   Main-is:           examples/src/PlaneWave.hs
