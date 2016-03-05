@@ -33,23 +33,29 @@ module Physics.Learn.QuantumMat
     -- * Quantum Dynamics
     , timeEv
     , timeEvMat
-    ) where
+    -- * Measurement
+    , possibleOutcomes
+    )
+    where
 
 import Numeric.LinearAlgebra
     ( C
     , Vector
     , Matrix
-    , iC    -- ^ sqrt (-1)
-    , fromList -- ^ vector definition
-    , (><)  -- ^ matrix definition
-    , (<>)  -- ^ matrix product (not * !!!!)
-    , (#>)  -- ^ matrix-vector product
+    , iC        -- square root of negative one
+    , fromList  -- vector definition
+    , (><)      -- matrix definition
+    , (<>)      -- matrix product (not * !!!!)
+    , (#>)      -- matrix-vector product
     , ident
     , scale
     , norm_2
     , size
     , inv
     , (<\>)
+    , sym
+    , eigenvaluesSH
+    , toList
     )
 import Data.Complex
     ( Complex(..)
@@ -136,6 +142,10 @@ sz :: Matrix C
 sz = (2><2) [ 1,  0
             , 0, -1 ]
 
+----------------------
+-- Quantum Dynamics --
+----------------------
+
 -- | Given a time step and a Hamiltonian matrix,
 --   produce a unitary time evolution matrix.
 --   Unless you really need the time evolution matrix,
@@ -162,3 +172,23 @@ timeEv dt h v
           n = if l == m then m else error "timeEv needs square Hamiltonian"
           identity = ident n
       in (identity + ah) <\> ((identity - ah) #> v)
+
+-----------------
+-- Measurement --
+-----------------
+
+-- | The possible outcomes of a measurement
+--   of an observable.
+--   These are the eigenvalues of the matrix
+--   of the observable.
+possibleOutcomes :: Matrix C -> [Double]
+possibleOutcomes observable
+    = toList $ eigenvaluesSH (sym observable)
+
+-- To Do
+--   Generate higher spin operators and state vectors
+--   Measurement?
+--   eigenvalues as possible outcomes
+--   eigenvectors
+--   projection operators
+--   density matrices
