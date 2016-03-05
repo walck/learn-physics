@@ -30,6 +30,7 @@ Library
                        Physics.Learn.CompositeQuadrature
                        Physics.Learn.RootFinding
                        Physics.Learn.Mechanics
+                       Physics.Learn.QuantumMat
                        Physics.Learn
                        Physics.Learn.Visual.PlotTools
                        Physics.Learn.Visual.VisTools
