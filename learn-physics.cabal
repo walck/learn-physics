@@ -1,5 +1,5 @@
 Name:                learn-physics
-Version:             0.5.2
+Version:             0.5.2.1
 Synopsis:            Haskell code for learning physics
 Description:         A library of functions for vector calculus,
                      calculation of electric field, electric flux,
@@ -34,13 +34,20 @@ Library
                        Physics.Learn.Visual.PlotTools
                        Physics.Learn.Visual.VisTools
                        Physics.Learn.Visual.GlossTools
-  Build-depends:       base >= 4.2 && < 4.9,
+  Build-depends:       (base == 4.8.*,
                        vector-space >= 0.8.4 && < 0.11,
                        not-gloss >= 0.7.4 && < 0.8,
                        spatial-math >= 0.2 && < 0.3,
                        gloss >= 1.8 && < 1.10,
-                       gnuplot >= 0.5 && < 0.6
-  Hs-source-dirs:      src
+                       gnuplot >= 0.5 && < 0.6)
+                       ||
+                       (base == 4.7.*,
+                       vector-space >= 0.8.4 && < 0.9,
+                       not-gloss >= 0.5.0.4 && < 0.7,
+                       spatial-math >= 0.1.7 && < 0.3,
+                       gnuplot >= 0.5 && < 0.6)
+
+Hs-source-dirs:      src
 
 Source-repository head
   type:                git
