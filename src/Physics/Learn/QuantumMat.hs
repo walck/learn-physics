@@ -26,6 +26,7 @@ module Physics.Learn.QuantumMat
     , np
     , nm
     , normalize
+    , probVector
     -- * Matrices (operators)
     , sx
     , sy
@@ -39,7 +40,8 @@ module Physics.Learn.QuantumMat
     where
 
 import Numeric.LinearAlgebra
-    ( C
+    ( R
+    , C
     , Vector
     , Matrix
     , iC        -- square root of negative one
@@ -56,9 +58,11 @@ import Numeric.LinearAlgebra
     , sym
     , eigenvaluesSH
     , toList
+    , cmap
     )
 import Data.Complex
     ( Complex(..)
+    , magnitude
     )
 
 -- | The state resulting from a measurement of
@@ -126,6 +130,11 @@ nm theta phi = fromList [ sin (theta/2) :+ 0
 -- | Return a normalized version of a given state vector.
 normalize :: Vector C -> Vector C
 normalize v = scale (1 / norm_2 v :+ 0) v
+
+-- | Return a vector of probabilities for a given state vector.
+probVector :: Vector C  -- ^ state vector
+           -> Vector R  -- ^ vector of probabilities
+probVector = cmap (\c -> magnitude c**2)
 
 -- | The Pauli X matrix.
 sx :: Matrix C

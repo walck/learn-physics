@@ -31,6 +31,8 @@ Library
                        Physics.Learn.RootFinding
                        Physics.Learn.Mechanics
                        Physics.Learn.QuantumMat
+                       Physics.Learn.BlochSphere
+                       Physics.Learn.Schrodinger1D
                        Physics.Learn
                        Physics.Learn.Visual.PlotTools
                        Physics.Learn.Visual.VisTools
@@ -41,7 +43,7 @@ Library
                        spatial-math >= 0.1.7 && < 0.3,
                        gloss >= 1.8 && < 1.10,
                        gnuplot >= 0.5 && < 0.6,
-                       hmatrix >= 0.17
+                       hmatrix >= 0.17, polynomial >= 0.7
   Hs-source-dirs:      src
 
 Source-repository head
@@ -89,4 +91,9 @@ Executable           learn-physics-Projectile
   Main-is:           examples/src/Projectile.hs
   Build-depends:     gnuplot >= 0.5 && < 0.6,
                      base >= 4.5 && < 4.9,
+                     learn-physics
+
+Executable           learn-physics-NMR
+  Main-is:           examples/src/NMR.hs
+  Build-depends:     base >= 4.5,
                      learn-physics
