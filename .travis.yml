@@ -64,6 +64,7 @@ before_install:
  - travis_retry sudo apt-get update
  - travis_retry sudo apt-get install cabal-install-$CABALVER ghc-$GHCVER
  - travis_retry sudo apt-get install freeglut3-dev
+ - travis_retry sudo apt-get install libblas-dev liblapack-dev
  - export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:$PATH
 
 install:

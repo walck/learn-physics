@@ -43,7 +43,7 @@ Library
                        vector-space >= 0.8.4 && < 0.11,
                        not-gloss >= 0.5.0.4 && < 0.8,
                        spatial-math >= 0.1.7 && < 0.3,
-                       gloss >= 1.8 && < 1.10,
+                       gloss >= 1.8,
                        gnuplot >= 0.5 && < 0.6,
                        hmatrix >= 0.17, polynomial >= 0.7
   Hs-source-dirs:      src
@@ -79,13 +79,13 @@ Executable           learn-physics-BCircularLoop
 
 Executable           learn-physics-sunEarth
   Main-is:           examples/src/sunEarthRK4.hs
-  Build-depends:     gloss >= 1.8 && < 1.10,
+  Build-depends:     gloss >= 1.8,
                      base >= 4.5 && < 4.9,
                      learn-physics
 
 Executable           learn-physics-eFieldLine2D
   Main-is:           examples/src/eFieldLine2D.hs
-  Build-depends:     gloss >= 1.8 && < 1.10,
+  Build-depends:     gloss >= 1.8,
                      base >= 4.5 && < 4.9,
                      learn-physics
 
