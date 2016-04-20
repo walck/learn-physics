@@ -1,10 +1,10 @@
 Name:                learn-physics
-Version:             0.5.2.1
+Version:             0.6.0.0
 Synopsis:            Haskell code for learning physics
 Description:         A library of functions for vector calculus,
                      calculation of electric field, electric flux,
-                     magnetic field, and other quantities in mechanics
-                     and electromagnetic theory.
+                     magnetic field, and other quantities in classical mechanics,
+                     electromagnetic theory, and quantum mechanics.
 License:             BSD3
 License-file:        LICENSE
 Author:              Scott N. Walck
@@ -31,8 +31,10 @@ Library
                        Physics.Learn.RootFinding
                        Physics.Learn.Mechanics
                        Physics.Learn.QuantumMat
+                       Physics.Learn.Ket
                        Physics.Learn.BlochSphere
                        Physics.Learn.Schrodinger1D
+                       Physics.Learn.BeamStack
                        Physics.Learn
                        Physics.Learn.Visual.PlotTools
                        Physics.Learn.Visual.VisTools

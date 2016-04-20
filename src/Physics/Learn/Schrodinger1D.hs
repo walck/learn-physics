@@ -31,11 +31,17 @@ module Physics.Learn.Schrodinger1D
     , stateVectorFromWavefunction
     , hamiltonianMatrix
     , expectX
+    , picture
     )
     where
 
 import Data.Complex
     ( Complex(..)
+    , magnitude
+    )
+import Graphics.Gloss
+    ( Picture(..)
+    , yellow
     )
 import Math.Polynomial.Hermite
     ( evalPhysHermite
@@ -48,9 +54,11 @@ import Numeric.LinearAlgebra
     , (|>)
     , (<.>)
     , fromLists
+    , toList
     )
 import Physics.Learn.QuantumMat
     ( probVector
+    , timeEv
     )
 
 hbar :: Double
@@ -202,6 +210,80 @@ expectX :: Vector C  -- ^ state vector
         -> Vector R  -- ^ vector of x values
         -> R         -- ^ <X>, expectation value of X
 expectX psi xs = probVector psi <.> xs
+
+
+glossScaleX :: Int -> (Double,Double) -> Double -> Float
+glossScaleX screenWidth (xmin,xmax) x
+    = let w = fromIntegral screenWidth :: Double
+      in realToFrac $ (x - xmin) / (xmax - xmin) * w - w / 2
+
+glossScaleY :: Int -> (Double,Double) -> Double -> Float
+glossScaleY screenHeight (ymin,ymax) y
+    = let h = fromIntegral screenHeight :: Double
+      in realToFrac $ (y - ymin) / (ymax - ymin) * h - h / 2
+
+glossScalePoint :: (Int,Int)        -- ^ (screenWidth,screenHeight)
+                -> (Double,Double)  -- ^ (xmin,xmax)
+                -> (Double,Double)  -- ^ (ymin,ymax)
+                -> (Double,Double)  -- ^ (x,y)
+                -> (Float,Float)
+glossScalePoint (screenWidth,screenHeight) xMinMax yMinMax (x,y)
+    = (glossScaleX screenWidth  xMinMax x
+      ,glossScaleY screenHeight yMinMax y)
+
+
+-- | Produce a gloss 'Picture' of state vector
+--   for 1D wavefunction.
+picture :: (Double, Double)    -- ^ y range
+        -> [Double]            -- ^ xs
+        -> Vector C            -- ^ state vector
+        -> Picture
+picture (ymin,ymax) xs psi
+    = Color
+      yellow
+      (Line
+       [glossScalePoint
+        (screenWidth,screenHeight)
+        (head xs, last xs)
+        (ymin,ymax)
+        p | p <- zip xs (map magSq $ toList psi)])
+           where
+             magSq = \z -> magnitude z ** 2
+             screenWidth  = 1000
+             screenHeight =  750
+
+{-
+-- | Given an initial state vector and
+--   state propagation function, produce a simulation.
+--   The 'Float' in the state propagation function is the time
+--   interval for one timestep.
+simulate1D :: [Double] -> Vector C -> (Float -> (Float,[Double],Vector C) -> (Float,[Double],Vector C)) -> IO ()
+simulate1D xs initial statePropFunc
+    = simulate display black 10 (0,initial) displayFunc (const statePropFunc)
+      where
+        display = InWindow "Animation" (screenWidth,screenHeight) (10,10)
+        displayFunc (_t,v) = Color yellow (Line [(
+      
+      white (\tFloat -> Pictures [Color blue (Line (points (realToFrac tFloat)))
+                                 ,axes (screenWidth,screenHeight) (xmin,xmax) (ymin,ymax)])
+
+-- | Produce a state propagation function from a time-dependent Hamiltonian.
+--   The float is dt.
+statePropGloss :: (Double -> Matrix C) -> Float -> (Float,Vector C) -> (Float,Vector C)
+statePropGloss ham dt (tOld,v)
+    = (tNew, timeEv (realToFrac dt) (ham tMid) v)
+      where
+        tNew = tOld + dt
+        tMid = realToFrac $ (tNew + tOld) / 2
+
+-- | Given an initial state vector and a time-dependent Hamiltonian,
+--   produce a visualization of a 1D wavefunction.
+evolutionBlochSphere :: Vector C -> (Double -> Matrix C) -> IO ()
+evolutionBlochSphere psi0 ham
+    = simulateBlochSphere 0.01 psi0 (stateProp ham)
+
+-}
+
 
 {-
 def triDiagMatrixMult(square_arr,arr):

@@ -126,6 +126,16 @@ simulateBlochSphere :: Double -> Vector C -> (Float -> (Float,Vector C) -> (Floa
 simulateBlochSphere sampleRate initial statePropFunc
     = simulate myOptions sampleRate (0,initial) (staticBlochSphere . toPos . snd) statePropFunc
 
+{-
+-- | Given a sample rate, initial qubit state vector, and
+--   state propagation function, produce a simulation.
+--   The 'Float' in the state propagation function is the time
+--   since the beginning of the simulation.
+playBlochSphere :: Double -> Vector C -> (Float -> (Float,Vector C) -> (Float,Vector C)) -> IO ()
+playBlochSphere sampleRate initial statePropFunc
+    = play myOptions sampleRate (0,initial) (staticBlochSphere . toPos . snd) statePropFunc
+-}
+
 -- | Produce a state propagation function from a time-dependent Hamiltonian.
 stateProp :: (Double -> Matrix C) -> Float -> (Float,Vector C) -> (Float,Vector C)
 stateProp ham tNew (tOld,v)
@@ -160,9 +170,6 @@ hamRabi omega0 omegaR omega t
     = let h11 = omega0 :+ 0
           h12 = (omegaR :+ 0) * exp (-iC * ((omega * t) :+ 0))
       in scale (1/2) $ (2><2) [h11, h12, (conjugate h12), (-h11)]
-
-nmr1 :: IO ()
-nmr1 = evolutionBlochSphere zm (hamRabi 10 1 10)
 
 -- need to scale time
 
