@@ -45,6 +45,7 @@ Library
                        spatial-math >= 0.1.7 && < 0.3,
                        gloss >= 1.8,
                        gnuplot >= 0.5 && < 0.6,
+                       linear >= 1.20,
                        hmatrix >= 0.17, polynomial >= 0.7
   Hs-source-dirs:      src
 
