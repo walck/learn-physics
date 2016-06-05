@@ -49,6 +49,7 @@ module Physics.Learn.QuantumMat
     , fromLists
     , toLists
     , size
+    , matrixFunction
     -- * Density matrices
     , couter
     , dm
@@ -56,10 +57,15 @@ module Physics.Learn.QuantumMat
     , normalizeDM
     , oneQubitMixed
     -- * Quantum Dynamics
-    , timeEv
     , timeEvMat
+    , timeEv
+    , timeEvMatSpec
+    -- * Composition
+    , Kronecker(..)
     -- * Measurement
     , possibleOutcomes
+    , outcomesProjectors
+    , outcomesProbabilities
     -- * Vector and Matrix
     , Vector
     , Matrix
@@ -70,6 +76,7 @@ import Numeric.LinearAlgebra
     ( C
     , Vector
     , Matrix
+    , Herm
     , iC        -- square root of negative one
     , (><)      -- matrix definition
     , ident
@@ -79,6 +86,7 @@ import Numeric.LinearAlgebra
     , (<\>)
     , sym
     , eigenvaluesSH
+    , eigSH
     , cmap
     , takeDiag
     , conj
@@ -94,6 +102,7 @@ import qualified Numeric.LinearAlgebra as H
 import Data.Complex
     ( Complex(..)
     , magnitude
+    , realPart
     )
 
 -- | The state resulting from a measurement of
@@ -195,6 +204,10 @@ fromList = H.fromList
 toList :: Vector C -> [C]
 toList = H.toList
 
+--------------
+-- Matrices --
+--------------
+
 -- | The Pauli X matrix.
 sx :: Matrix C
 sx = (2><2) [ 0, 1
@@ -242,6 +255,15 @@ toLists = H.toLists
 size :: Matrix C -> (Int,Int)
 size = H.size
 
+-- | Apply a function to a matrix.
+--   Assumes the matrix is a normal matrix (a matrix
+--   with an orthonormal basis of eigenvectors).
+matrixFunction :: (C -> C) -> Matrix C -> Matrix C
+matrixFunction f m
+    = let (valv,vecm) = H.eig m
+          fvalv = fromList [f val | val <- toList valv]
+      in vecm <> H.diag fvalv <> tr vecm
+
 ----------------------
 -- Density Matrices --
 ----------------------
@@ -274,7 +296,7 @@ oneQubitMixed = normalizeDM $ ident 2
 --   produce a unitary time evolution matrix.
 --   Unless you really need the time evolution matrix,
 --   it is better to use 'timeEv', which gives the
---   same numerical results with doing an explicit
+--   same numerical results without doing an explicit
 --   matrix inversion.  The function assumes hbar = 1.
 timeEvMat :: Double -> Matrix C -> Matrix C
 timeEvMat dt h
@@ -297,6 +319,25 @@ timeEv dt h v
           identity = ident n
       in (identity + ah) <\> ((identity - ah) #> v)
 
+-- | Given a Hamiltonian matrix, return a function from time
+--   to evolution matrix.  Uses spectral decomposition.
+--   Assumes hbar = 1.
+timeEvMatSpec :: Matrix C -> Double -> Matrix C
+timeEvMatSpec m t = matrixFunction (\h -> exp(-iC * h * (t :+ 0))) m
+
+-----------------
+-- Composition --
+-----------------
+
+class Kronecker a where
+    kron :: a -> a -> a
+
+instance H.Product t => Kronecker (Vector t) where
+    kron v1 v2 = H.fromList [c1 * c2 | c1 <- H.toList v1, c2 <- H.toList v2]
+
+instance H.Product t => Kronecker (Matrix t) where
+    kron = H.kronecker
+
 -----------------
 -- Measurement --
 -----------------
@@ -308,6 +349,38 @@ timeEv dt h v
 possibleOutcomes :: Matrix C -> [Double]
 possibleOutcomes observable
     = H.toList $ eigenvaluesSH (sym observable)
+
+-- From a Hermitian matrix, a list of pairs of eigenvalues and eigenvectors.
+valsVecs :: Herm C -> [(Double,Vector C)]
+valsVecs h = let (valv,m) = eigSH h
+                 vals = H.toList valv
+                 vecs = map (conjV . fromList) $ toLists (conjugateTranspose m)
+             in zip vals vecs
+
+-- From a Hermitian matrix, a list of pairs of eigenvalues and projectors.
+valsPs :: Herm C -> [(Double,Matrix C)]
+valsPs h = [(val,couter vec vec) | (val,vec) <- valsVecs h]
+
+combineFst :: (Eq a, Num b) => [(a,b)] -> [(a,b)]
+combineFst [] = []
+combineFst [p] = [p]
+combineFst ((x1,m1):(x2,m2):ps)
+    = if x1 == x2
+      then combineFst ((x1,m1+m2):ps)
+      else (x1,m1):combineFst ((x2,m2):ps)
+
+-- | Given an obervable, return a list of pairs
+--   of possible outcomes and projectors
+--   for each outcome.
+outcomesProjectors :: Matrix C -> [(Double,Matrix C)]
+outcomesProjectors m = combineFst (valsPs (sym m))
+
+-- | Given an observable and a state vector, return a list of pairs
+--   of possible outcomes and probabilites
+--   for each outcome.
+outcomesProbabilities :: Matrix C -> Vector C -> [(Double,Double)]
+outcomesProbabilities m v
+    = [(a,realPart (inner v (p #> v))) | (a,p) <- outcomesProjectors m]
 
 ------------------
 -- Gram-Schmidt --

@@ -17,16 +17,15 @@ and operators for quantum mechanics.
 -- a Ket layer on top of QuantumMat
 
 module Physics.Learn.Ket
-    ( Ket
+    (
+    -- * Basic data types
+      C
+    , i
+    , magnitude
+    , Ket
     , Bra
     , Operator
-    , Mult(..)
-    , Dagger(..)
-    , Representable(..)
-    , OrthonormalBasis
-    , makeOB
-    , listBasis
-    , size
+    -- * Kets for spin-1/2 particles
     , xp
     , xm
     , yp
@@ -35,14 +34,41 @@ module Physics.Learn.Ket
     , zm
     , np
     , nm
-    , xBasis
-    , yBasis
-    , zBasis
+    -- * Operators for spin-1/2 particles
     , sx
     , sy
     , sz
-    , prob
-    , probs
+    , sn
+    , sn'
+    -- * Quantum Dynamics
+    , timeEvOp
+    , timeEv
+    -- * Composition
+    , Kron(..)
+    -- * Measurement
+    , possibleOutcomes
+    , outcomesProjectors
+    , outcomesProbabilities
+--    , prob
+--    , probs
+    -- * Generic multiplication
+    , Mult(..)
+    -- * Adjoint operation
+    , Dagger(..)
+    -- * Normalization
+    , HasNorm(..)
+    -- * Representation
+    , Representable(..)
+    -- * Orthonormal bases
+    , OrthonormalBasis
+    , makeOB
+    , listBasis
+    , size
+    -- * Orthonormal bases for spin-1/2 particles
+    , xBasis
+    , yBasis
+    , zBasis
+    , nBasis
     -- , angularMomentumXMatrix
     -- , angularMomentumYMatrix
     -- , angularMomentumZMatrix
@@ -60,9 +86,9 @@ module Physics.Learn.Ket
 -- We try to import only from QuantumMat
 -- and not from Numeric.LinearAlgebra
 
+import qualified Data.Complex as C
 import Data.Complex
     ( Complex(..)
-    , magnitude
     , conjugate
     )
 import qualified Physics.Learn.QuantumMat as M
@@ -72,7 +98,6 @@ import Physics.Learn.QuantumMat
     , Matrix
     , (#>)
     , (<#)
-    , couter
     , conjugateTranspose
     , scaleV
     , scaleM
@@ -100,13 +125,24 @@ instance Show Ket where
 data Operator = Operator (Matrix C)
 
 instance Show Operator where
-    show _ = "<operator>\nTry 'rep zBasis <operator name>'"
+    show op =
+        let message = "Use 'rep <basis name> <operator name>'."
+        in if dim op == 2
+           then "Representation in zBasis:\n" ++
+                show (rep zBasis op) ++ "\n" ++ message
+           else message
 
 -- | A bra vector describes the state of a quantum system.
 data Bra = Bra (Vector C)
 
 instance Show Bra where
     show _ = "<bra>\nTry 'rep zBasis <bra name>'"
+
+magnitude :: C -> Double
+magnitude = C.magnitude
+
+i :: C
+i = 0 :+ 1
 
 -- | Generic multiplication including inner product,
 --   outer product, operator product, and whatever else makes sense.
@@ -148,7 +184,9 @@ instance Mult Operator Ket Ket where
         = Ket (matrixOp #> matrixKet)
 
 instance Mult Ket Bra Operator where
-    Ket k <> Bra b = Operator (couter k b)
+    Ket k <> Bra b =
+        Operator
+        (fromLists [[ x*y | y <- toList b] | x <- toList k])
 
 instance Mult Operator Operator Operator where
     Operator m1 <> Operator m2 = Operator (m1 M.<> m2)
@@ -209,17 +247,6 @@ instance HasNorm Bra where
     norm (Bra v) = M.norm v
     normalize b  = (1 / norm b :+ 0) <> b
 
-{-
-class HasDim a where
-    dim :: a -> Int
-
-instance HasDim Ket where
-    dim (Ket v) = M.dim v
-
-instance HasDim Bra where
-    dim (Bra v) = M.dim v
--}
-
 -- | An orthonormal basis of kets.
 newtype OrthonormalBasis = OB [Ket]
     deriving (Show)
@@ -255,14 +282,6 @@ instance Representable Operator (Matrix C) where
     rep (OB ks) op = fromLists [[ dagger k1 <> op <> k2 | k2 <- ks ] | k1 <- ks ]
     dim (Operator m) = let (p,q) = M.size m
                        in if p == q then p else error "dim: non-square operator"
-
-prob :: Ket -> Ket -> Double
-prob k1 k2 = magnitude c ** 2
-    where
-      c = dagger k1 <> k2
-
-probs :: OrthonormalBasis -> Ket -> [Double]
-probs (OB ks) k = map (\bk -> let c = dagger bk <> k in magnitude c ** 2) ks
 
 --------------
 -- Spin 1/2 --
@@ -314,14 +333,22 @@ nm theta phi
     = (sin (theta / 2) :+ 0) <> zp
       - (cos (theta / 2) :+ 0) * (cos phi :+ sin phi) <> zm
 
+-- | The orthonormal basis composed of 'xp' and 'xm'.
 xBasis :: OrthonormalBasis
 xBasis = makeOB [xp,xm]
 
+-- | The orthonormal basis composed of 'yp' and 'ym'.
 yBasis :: OrthonormalBasis
 yBasis = makeOB [yp,ym]
 
+-- | The orthonormal basis composed of 'zp' and 'zm'.
 zBasis :: OrthonormalBasis
 zBasis = makeOB [zp,zm]
+
+-- | Given spherical polar angle theta and azimuthal angle phi,
+--   the orthonormal basis composed of 'np' theta phi and 'nm' theta phi.
+nBasis :: Double -> Double -> OrthonormalBasis
+nBasis theta phi = makeOB [np theta phi,nm theta phi]
 
 -- | The Pauli X operator.
 sx :: Operator
@@ -334,6 +361,93 @@ sy = yp <> dagger yp - ym <> dagger ym
 -- | The Pauli Z operator.
 sz :: Operator
 sz = zp <> dagger zp - zm <> dagger zm
+
+-- | Pauli operator for an arbitrary direction given
+--   by spherical coordinates theta and phi.
+sn :: Double -> Double -> Operator
+sn theta phi
+    = (sin theta * cos phi :+ 0) <> sx +
+      (sin theta * sin phi :+ 0) <> sy +
+      (cos theta           :+ 0) <> sz
+
+-- | Alternative definition
+--   of Pauli operator for an arbitrary direction.
+sn' :: Double -> Double -> Operator
+sn' theta phi
+    = np theta phi <> dagger (np theta phi) -
+      nm theta phi <> dagger (nm theta phi)
+
+----------------------
+-- Quantum Dynamics --
+----------------------
+
+-- | Given a time step and a Hamiltonian operator,
+--   produce a unitary time evolution operator.
+--   Unless you really need the time evolution operator,
+--   it is better to use 'timeEv', which gives the
+--   same numerical results without doing an explicit
+--   matrix inversion.  The function assumes hbar = 1.
+timeEvOp :: Double -> Operator -> Operator
+timeEvOp dt (Operator m) = Operator (M.timeEvMat dt m)
+
+-- | Given a time step and a Hamiltonian operator,
+--   advance the state ket using the Schrodinger equation.
+--   This method should be faster than using 'timeEvOp'
+--   since it solves a linear system rather than calculating
+--   an inverse matrix.  The function assumes hbar = 1.
+timeEv :: Double -> Operator -> Ket -> Ket
+timeEv dt (Operator m) (Ket k) = Ket $ M.timeEv dt m k
+
+-----------------
+-- Composition --
+-----------------
+
+class Kron a where
+    kron :: a -> a -> a
+
+instance Kron Ket where
+    kron (Ket v1) (Ket v2) = Ket (M.kron v1 v2)
+
+instance Kron Bra where
+    kron (Bra v1) (Bra v2) = Bra (M.kron v1 v2)
+
+instance Kron Operator where
+    kron (Operator m1) (Operator m2) = Operator (M.kron m1 m2)
+
+-----------------
+-- Measurement --
+-----------------
+
+-- | The possible outcomes of a measurement
+--   of an observable.
+--   These are the eigenvalues of the operator
+--   of the observable.
+possibleOutcomes :: Operator -> [Double]
+possibleOutcomes (Operator observable) = M.possibleOutcomes observable
+
+-- | Given an obervable, return a list of pairs
+--   of possible outcomes and projectors
+--   for each outcome.
+outcomesProjectors :: Operator -> [(Double,Operator)]
+outcomesProjectors (Operator m)
+    = [(val,Operator p) | (val,p) <- M.outcomesProjectors m]
+
+-- | Given an observable and a state ket, return a list of pairs
+--   of possible outcomes and probabilites
+--   for each outcome.
+outcomesProbabilities :: Operator -> Ket -> [(Double,Double)]
+outcomesProbabilities (Operator m) (Ket v)
+    = M.outcomesProbabilities m v
+
+{-
+prob :: Ket -> Ket -> Double
+prob k1 k2 = magnitude c ** 2
+    where
+      c = dagger k1 <> k2
+
+probs :: OrthonormalBasis -> Ket -> [Double]
+probs (OB ks) k = map (\bk -> let c = dagger bk <> k in magnitude c ** 2) ks
+-}
 
 {-
 ----------------------------------------

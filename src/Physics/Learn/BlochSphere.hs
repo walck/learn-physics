@@ -15,24 +15,27 @@ system as a point on the Bloch Sphere.
 module Physics.Learn.BlochSphere
     ( VisObj
     , toPos
+    , ketToPos
     , staticBlochSphere
     , displayStaticState
     , animatedBlochSphere
     , simulateBlochSphere
+    , simulateBlochSphereK
     , stateProp
+    , statePropK
     , evolutionBlochSphere
+    , evolutionBlochSphereK
     , hamRabi
     )
     where
 
-import Physics.Learn.QuantumMat
-    ( sy
-    , sz
-    , xp
-    , yp
-    , ym
-    , zm
-    , timeEv
+import qualified Physics.Learn.QuantumMat as M
+import qualified Physics.Learn.Ket as K
+import Physics.Learn.Ket
+    ( Ket
+    , Operator
+    , (<>)
+    , dagger
     )
 import Numeric.LinearAlgebra
     ( Vector
@@ -40,7 +43,7 @@ import Numeric.LinearAlgebra
     , C
     , iC
 --    , (<>)  -- matrix multiplication
-    , (|>)  -- vector definition
+--    , (|>)  -- vector definition
     , (!)   -- vector element access
     , (><)  -- matrix definition
     , scale
@@ -72,6 +75,22 @@ import Vis
     , red
     )
 
+{-
+3 ways to specify the state of a spin-1/2 particle:
+Vector C
+Ket
+Position  (Bloch vector)
+
+2 ways to specify a Hamiltonian:
+Matrix C
+Operator
+
+3 choices for Vis' world:
+(Float, Vector C)
+(Float, Ket)
+(Float, Position)
+-}
+
 -- | A Vis object.
 type VisObj = VisObject Double
 
@@ -83,6 +102,18 @@ toPos v
       then error "toPos only for size 2 vectors"
       else let z1 = v ! 0
                z2 = v ! 1
+           in cart (2 * realPart (conjugate z1 * z2))
+                   (2 * imagPart (conjugate z1 * z2))
+                   (realPart (conjugate z1 * z1 - conjugate z2 * z2))
+
+-- | Convert a qubit ket
+--   into Bloch (x,y,z) coordinates.
+ketToPos :: Ket -> Position
+ketToPos psi
+    = if K.dim psi /= 2
+      then error "ketToPos only for qubit kets"
+      else let z1 = dagger K.zp <> psi
+               z2 = dagger K.zm <> psi
            in cart (2 * realPart (conjugate z1 * z2))
                    (2 * imagPart (conjugate z1 * z2))
                    (realPart (conjugate z1 * z1 - conjugate z2 * z2))
@@ -103,15 +134,6 @@ displayStaticBlochSphere r
 displayStaticState :: Vector C -> IO ()
 displayStaticState = displayStaticBlochSphere . toPos
 
-displayxp :: IO ()
-displayxp = displayStaticState xp
-
-displayyp :: IO ()
-displayyp = displayStaticState yp
-
-displayym :: IO ()
-displayym = displayStaticState ym
-
 -- | Given a Bloch vector as a function of time,
 --   return a 'VisObj' as a function of time.
 animatedBlochSphere :: (Double -> Position) -> (Float -> VisObj)
@@ -126,6 +148,14 @@ simulateBlochSphere :: Double -> Vector C -> (Float -> (Float,Vector C) -> (Floa
 simulateBlochSphere sampleRate initial statePropFunc
     = simulate myOptions sampleRate (0,initial) (staticBlochSphere . toPos . snd) statePropFunc
 
+-- | Given a sample rate, initial qubit state ket, and
+--   state propagation function, produce a simulation.
+--   The 'Float' in the state propagation function is the time
+--   since the beginning of the simulation.
+simulateBlochSphereK :: Double -> Ket -> (Float -> (Float,Ket) -> (Float,Ket)) -> IO ()
+simulateBlochSphereK sampleRate initial statePropFuncK
+    = simulate myOptions sampleRate (0,initial) (staticBlochSphere . ketToPos . snd) statePropFuncK
+
 {-
 -- | Given a sample rate, initial qubit state vector, and
 --   state propagation function, produce a simulation.
@@ -139,7 +169,15 @@ playBlochSphere sampleRate initial statePropFunc
 -- | Produce a state propagation function from a time-dependent Hamiltonian.
 stateProp :: (Double -> Matrix C) -> Float -> (Float,Vector C) -> (Float,Vector C)
 stateProp ham tNew (tOld,v)
-    = (tNew, timeEv (realToFrac dt) (ham tMid) v)
+    = (tNew, M.timeEv (realToFrac dt) (ham tMid) v)
+      where
+        dt = tNew - tOld
+        tMid = realToFrac $ (tNew + tOld) / 2
+
+-- | Produce a state propagation function from a time-dependent Hamiltonian.
+statePropK :: (Double -> Operator) -> Float -> (Float,Ket) -> (Float,Ket)
+statePropK ham tNew (tOld,psi)
+    = (tNew, K.timeEv (realToFrac dt) (ham tMid) psi)
       where
         dt = tNew - tOld
         tMid = realToFrac $ (tNew + tOld) / 2
@@ -150,18 +188,26 @@ evolutionBlochSphere :: Vector C -> (Double -> Matrix C) -> IO ()
 evolutionBlochSphere psi0 ham
     = simulateBlochSphere 0.01 psi0 (stateProp ham)
 
+-- | Given an initial qubit ket and a time-dependent Hamiltonian,
+--   produce a visualization.
+evolutionBlochSphereK :: Ket -> (Double -> Operator) -> IO ()
+evolutionBlochSphereK psi0 ham
+    = simulateBlochSphereK 0.01 psi0 (statePropK ham)
+
 myOptions :: Options
 myOptions = defaultOpts {optWindowName = "Bloch Sphere"
                         ,optInitialCamera = Just (Camera0 75 20 4)}
 
+{-
 staticBz1 :: IO ()
-staticBz1 = evolutionBlochSphere xp (const (scale 0.9 sz))
+staticBz1 = evolutionBlochSphere M.xp (const (scale 0.9 M.sz))
 
 staticBz2 :: IO ()
-staticBz2 = evolutionBlochSphere ((2|>) [(cos (pi / 8)), (sin (pi / 8))]) (const sz)
+staticBz2 = evolutionBlochSphere ((2|>) [(cos (pi / 8)), (sin (pi / 8))]) (const M.sz)
 
 staticBy1 :: IO ()
-staticBy1 = evolutionBlochSphere xp (const sy)
+staticBy1 = evolutionBlochSphere M.xp (const M.sy)
+-}
 
 -- | Hamiltonian for nuclear magnetic resonance.
 --   Explain omega0, omegaR, omega.
