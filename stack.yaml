@@ -1,0 +1,7 @@
+resolver: lts-10.3
+packages:
+- .
+extra-deps:
+- not-gloss-0.7.7.0
+- spatial-math-0.3.1.0
+- polynomial-0.7.3

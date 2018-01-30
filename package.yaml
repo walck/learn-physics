@@ -1,0 +1,99 @@
+name: learn-physics
+version: '0.6.0.2'
+synopsis: Haskell code for learning physics
+description: ! 'A library of functions for vector calculus,
+
+  calculation of electric field, electric flux,
+
+  magnetic field, and other quantities in classical mechanics,
+
+  electromagnetic theory, and quantum mechanics.'
+category: Physics
+author: Scott N. Walck
+maintainer: Scott N. Walck <walck@lvc.edu>
+license: BSD3
+github: walck/learn-physics
+tested-with: GHC>=7.10.2 && <=7.10.3
+dependencies:
+- base >=4.8 && < 5
+- gloss >=1.8
+- gnuplot >=0.5 && <0.6
+- hmatrix >=0.17 && <0.19
+- linear >=1.20 && <1.21
+- not-gloss >=0.7.4 && <0.8
+- polynomial >=0.7 && <0.8
+- spatial-math >=0.1.7 && <0.4
+- vector-space >=0.8.4 && <0.14
+library:
+  source-dirs: src
+  exposed-modules:
+    - Physics.Learn
+    - Physics.Learn.BeamStack
+    - Physics.Learn.BlochSphere
+    - Physics.Learn.CarrotVec
+    - Physics.Learn.Charge
+    - Physics.Learn.CommonVec
+    - Physics.Learn.CompositeQuadrature
+    - Physics.Learn.CoordinateFields
+    - Physics.Learn.CoordinateSystem
+    - Physics.Learn.Current
+    - Physics.Learn.Curve
+    - Physics.Learn.Ket
+    - Physics.Learn.Mechanics
+    - Physics.Learn.Position
+    - Physics.Learn.QuantumMat
+    - Physics.Learn.RootFinding
+    - Physics.Learn.RungeKutta
+    - Physics.Learn.SimpleVec
+    - Physics.Learn.StateSpace
+    - Physics.Learn.Surface
+    - Physics.Learn.Visual.GlossTools
+    - Physics.Learn.Visual.PlotTools
+    - Physics.Learn.Visual.VisTools
+    - Physics.Learn.Volume
+  ghc-options:
+    - -Wall
+    - -fno-warn-unused-do-bind
+executables:
+  learn-physics-PlaneWave:
+    main: examples/src/PlaneWave.hs
+    dependencies:
+    - learn-physics
+  learn-physics-Projectile:
+    main: examples/src/Projectile.hs
+    dependencies:
+    - learn-physics
+  learn-physics-sunEarth:
+    main: examples/src/sunEarthRK4.hs
+    dependencies:
+    - learn-physics
+  learn-physics-LorentzForceSimulation:
+    main: examples/src/LorentzForceSimulation.hs
+    dependencies:
+    - learn-physics
+  learn-physics-eFieldLine2D:
+    main: examples/src/eFieldLine2D.hs
+    dependencies:
+    - learn-physics
+  learn-physics-NMR:
+    main: examples/src/NMR.hs
+    dependencies:
+    - learn-physics
+  learn-physics-BCircularLoop:
+    main: examples/src/BCircularLoop.hs
+    dependencies:
+    - learn-physics
+  learn-physics-eFieldLine3D:
+    main: examples/src/eFieldLine3D.hs
+    dependencies:
+    - learn-physics
+tests:
+  learn-physics-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - learn-physics
