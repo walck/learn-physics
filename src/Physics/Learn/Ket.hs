@@ -2,10 +2,11 @@
 {-# LANGUAGE Safe #-}
 {-# LANGUAGE MultiParamTypeClasses, FunctionalDependencies #-}
 {-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
+{-# LANGUAGE CPP #-}
 
 {- | 
 Module      :  Physics.Learn.Ket
-Copyright   :  (c) Scott N. Walck 2016
+Copyright   :  (c) Scott N. Walck 2016-2018
 License     :  BSD3 (see LICENSE)
 Maintainer  :  Scott N. Walck <walck@lvc.edu>
 Stability   :  experimental
@@ -106,6 +107,9 @@ import Physics.Learn.QuantumMat
     , toList
     , fromLists
     )
+#if MIN_VERSION_base(4,11,0)
+import Prelude hiding ((<>))
+#endif
 
 infixl 7 <>
 

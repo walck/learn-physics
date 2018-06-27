@@ -1,5 +1,5 @@
 Name:                learn-physics
-Version:             0.6.0.2
+Version:             0.6.2
 Synopsis:            Haskell code for learning physics
 Description:         A library of functions for vector calculus,
                      calculation of electric field, electric flux,
@@ -12,7 +12,6 @@ Maintainer:          Scott N. Walck <walck@lvc.edu>
 Category:            Physics
 Build-type:          Simple
 Cabal-version:       >=1.8
-Tested-with:         GHC >= 7.10.2 && <= 7.10.3
 Library
   Exposed-modules:     Physics.Learn.Charge
                        Physics.Learn.Current
@@ -30,72 +29,71 @@ Library
                        Physics.Learn.CompositeQuadrature
                        Physics.Learn.RootFinding
                        Physics.Learn.Mechanics
+                       Physics.Learn.Visual.PlotTools
+                       Physics.Learn.Visual.GlossTools
+                       Physics.Learn
                        Physics.Learn.QuantumMat
                        Physics.Learn.Ket
-                       Physics.Learn.BlochSphere
                        Physics.Learn.BeamStack
-                       Physics.Learn
-                       Physics.Learn.Visual.PlotTools
-                       Physics.Learn.Visual.VisTools
-                       Physics.Learn.Visual.GlossTools
-  Build-depends:       base >= 4.7 && < 4.10,
-                       vector-space >= 0.8.4 && < 0.11,
-                       not-gloss >= 0.5.0.4 && < 0.8,
-                       spatial-math >= 0.1.7 && < 0.4,
-                       gloss >= 1.8 && < 1.11,
-                       gnuplot >= 0.5 && < 0.6,
-                       linear >= 1.20 && < 1.21,
-                       hmatrix >= 0.17 && < 1.18
+--                       Physics.Learn.BlochSphere
+--                       Physics.Learn.Visual.VisTools
+  Build-depends:       base >= 4.7 && < 4.12,
+                       vector-space >= 0.8.4,
+                       hmatrix >= 0.17,
+                       gloss >= 1.8,
+                       gnuplot >= 0.5 && < 0.6
+--                       not-gloss >= 0.5.0.4,
+--                       spatial-math >= 0.2,
   Hs-source-dirs:      src
 
 Source-repository head
   type:                git
   location:            https://github.com/walck/learn-physics
 
-Executable           learn-physics-PlaneWave
-  Main-is:           examples/src/PlaneWave.hs
-  Build-depends:     not-gloss >= 0.7.4 && < 0.8,
-                     base >= 4.5 && < 4.10,
-                     learn-physics
+-- Executable           learn-physics-PlaneWave
+--   Main-is:           examples/src/PlaneWave.hs
+--   Build-depends:     not-gloss >= 0.7.4,
+--                      base >= 4.5 && < 4.12,
+--                      learn-physics
 
-Executable           learn-physics-eFieldLine3D
-  Main-is:           examples/src/eFieldLine3D.hs
-  Build-depends:     not-gloss >= 0.7.4 && < 0.8,
-                     base >= 4.5 && < 4.10,
-                     learn-physics
+-- Executable           learn-physics-eFieldLine3D
+--   Main-is:           examples/src/eFieldLine3D.hs
+--   Build-depends:     not-gloss >= 0.7.4,
+--                      base >= 4.5 && < 4.12,
+--                      learn-physics
 
-Executable           learn-physics-LorentzForceSimulation
-  Main-is:           examples/src/LorentzForceSimulation.hs
-  Build-depends:     not-gloss >= 0.7.4 && < 0.8,
-                     spatial-math >= 0.2 && < 0.3,
-                     base >= 4.5 && < 4.10,
-                     learn-physics
+-- Executable           learn-physics-LorentzForceSimulation
+--   Main-is:           examples/src/LorentzForceSimulation.hs
+--   Build-depends:     not-gloss >= 0.7.4,
+--                      spatial-math >= 0.2,
+--                      base >= 4.5 && < 4.12,
+--                      learn-physics
 
-Executable           learn-physics-BCircularLoop
-  Main-is:           examples/src/BCircularLoop.hs
-  Build-depends:     not-gloss >= 0.7.4 && < 0.8,
-                     base >= 4.5 && < 4.10,
-                     learn-physics
+-- Executable           learn-physics-BCircularLoop
+--   Main-is:           examples/src/BCircularLoop.hs
+--   Build-depends:     not-gloss >= 0.7.4,
+--                      base >= 4.5 && < 4.12,
+--                      learn-physics
 
 Executable           learn-physics-sunEarth
   Main-is:           examples/src/sunEarthRK4.hs
   Build-depends:     gloss >= 1.8,
-                     base >= 4.5 && < 4.10,
+                     base >= 4.5 && < 4.12,
                      learn-physics
 
 Executable           learn-physics-eFieldLine2D
   Main-is:           examples/src/eFieldLine2D.hs
   Build-depends:     gloss >= 1.8,
-                     base >= 4.5 && < 4.10,
+                     base >= 4.5 && < 4.12,
                      learn-physics
 
 Executable           learn-physics-Projectile
   Main-is:           examples/src/Projectile.hs
-  Build-depends:     gnuplot >= 0.5 && < 0.6,
-                     base >= 4.5 && < 4.10,
+  Build-depends:     gnuplot >= 0.5,
+                     base >= 4.5 && < 4.12,
                      learn-physics
 
-Executable           learn-physics-NMR
-  Main-is:           examples/src/NMR.hs
-  Build-depends:     base >= 4.5,
-                     learn-physics
+-- Executable           learn-physics-NMR
+--   Main-is:           examples/src/NMR.hs
+--   Build-depends:     base >= 4.5,
+--                      learn-physics

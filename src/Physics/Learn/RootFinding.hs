@@ -3,7 +3,7 @@
 
 {- | 
 Module      :  Physics.Learn.RootFinding
-Copyright   :  (c) Scott N. Walck 2012-2014
+Copyright   :  (c) Scott N. Walck 2012-2017
 License     :  BSD3 (see LICENSE)
 Maintainer  :  Scott N. Walck <walck@lvc.edu>
 Stability   :  experimental
@@ -26,7 +26,7 @@ module Physics.Learn.RootFinding
 
 -- | Given an initial bracketing of a root
 --   (an interval (a,b) for which f(a) f(b) <= 0),
---   produce a bracket of arbitrary smallness.
+--   produce a bracket (c,d) for which |c-d| < desired accuracy.
 bracketRoot :: (Ord a, Fractional a) =>
                a         -- ^ desired accuracy
             -> (a -> a)  -- ^ function

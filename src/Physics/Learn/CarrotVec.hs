@@ -1,10 +1,10 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wall -fno-warn-orphans #-}
-{-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE Safe #-}
 
 {- | 
 Module      :  Physics.Learn.CarrotVec
-Copyright   :  (c) Scott N. Walck 2011-2014
+Copyright   :  (c) Scott N. Walck 2011-2018
 License     :  BSD3 (see LICENSE)
 Maintainer  :  Scott N. Walck <walck@lvc.edu>
 Stability   :  experimental

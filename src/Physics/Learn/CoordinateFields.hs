@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -Wall #-}
-{-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE Safe #-}
 
 {- | 
 Module      :  Physics.Learn.CoordinateFields
-Copyright   :  (c) Scott N. Walck 2012-2014
+Copyright   :  (c) Scott N. Walck 2012-2018
 License     :  BSD3 (see LICENSE)
 Maintainer  :  Scott N. Walck <walck@lvc.edu>
 Stability   :  experimental

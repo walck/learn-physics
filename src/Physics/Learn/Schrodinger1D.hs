@@ -3,7 +3,7 @@
 
 {- | 
 Module      :  Physics.Learn.Schrodinger1D
-Copyright   :  (c) Scott N. Walck 2015-2016
+Copyright   :  (c) Scott N. Walck 2015-2017
 License     :  BSD3 (see LICENSE)
 Maintainer  :  Scott N. Walck <walck@lvc.edu>
 Stability   :  experimental
@@ -23,7 +23,7 @@ module Physics.Learn.Schrodinger1D
     , stepV
     , wall
     -- * Initial wavefunctions
-    , harm
+--    , harm
     , coherent
     , gaussian
     , movingGaussian
@@ -43,9 +43,9 @@ import Graphics.Gloss
     ( Picture(..)
     , yellow
     )
-import Math.Polynomial.Hermite
-    ( evalPhysHermite
-    )
+-- import Math.Polynomial.Hermite
+--     ( evalPhysHermite
+--     )
 import Numeric.LinearAlgebra
     ( R
     , C
@@ -135,13 +135,13 @@ wall w v0 x0 x
 -- Initial wavefunctions --
 ---------------------------
 
--- | Harmonic oscillator stationary state
-harm :: Int          -- ^ nonnegative integer n identifying stationary state
-     -> Double       -- ^ x / sqrt(hbar/(m * omega)), i.e. position
-                     --   in units of sqrt(hbar/(m * omega))
-     -> C            -- ^ complex amplitude
-harm n u
-    = exp (-u**2/2) * evalPhysHermite n u / sqrt (2^n * fact n * sqrt pi) :+ 0
+-- -- | Harmonic oscillator stationary state
+-- harm :: Int          -- ^ nonnegative integer n identifying stationary state
+--      -> Double       -- ^ x / sqrt(hbar/(m * omega)), i.e. position
+--                      --   in units of sqrt(hbar/(m * omega))
+--      -> C            -- ^ complex amplitude
+-- harm n u
+--     = exp (-u**2/2) * evalPhysHermite n u / sqrt (2^n * fact n * sqrt pi) :+ 0
 
 coherent
     :: Double                    -- ^ mass of particle
@@ -382,7 +382,7 @@ and to add potentials
 
 -}
 
--- Are we committed to SI units for hbar?
+-- Are we committed to SI units for hbar?  No.
 -- harmonic oscillator functions depend only on sqrt(hbar/m omega)
 -- which is a length parameter
 -- for moving gaussian, could give hbar/p0 instead of p0
