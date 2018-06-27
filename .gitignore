@@ -27,7 +27,7 @@ SourceGraph/
 _darcs/
 *.png
 *-conflict
-stack.yaml
+stack.yaml*
 examples/LICENSE
 examples/src/Testing.hs
 src/PlaneWave.hs
