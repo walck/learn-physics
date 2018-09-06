@@ -3,7 +3,7 @@
 
 {- | 
 Module      :  Physics.Learn.SimpleVec
-Copyright   :  (c) Scott N. Walck 2012-2014
+Copyright   :  (c) Scott N. Walck 2012-2018
 License     :  BSD3 (see LICENSE)
 Maintainer  :  Scott N. Walck <walck@lvc.edu>
 Stability   :  experimental
@@ -17,24 +17,9 @@ This makes using and reasoning about vector operations
 easier for a person just learning Haskell.
 -}
 
--- 2011 Apr 10
--- Placed the code common to SimpleVec and CarrotVec in CommonVec
-
--- 2011 Mar 19
--- Add support for sumV, so that the interface matches CarrotVec.hs
-
--- This uses the same internal data representation as SimpleVector,
--- but uses an interface to match Conal Elliott's operators for
--- vectors.  (A similar interface to CarrotVector and SimpleCarrotVector.)
--- The notation
--- zeroV, negateV, (^+^), (^-^)
--- is borrowed from Data.AdditiveGroup, and
--- (*^), (^*), (^/), (<.>), magnitude
--- is borrowed from Data.VectorSpace.
--- Cross product operator is my own.
-
 module Physics.Learn.SimpleVec
     ( Vec
+    , R
     , xComp
     , yComp
     , zComp
@@ -72,6 +57,8 @@ infixl 7 ^*
 infixl 7 ^/
 infixl 7 <.>
 
+type R = Double
+
 -- | The zero vector.
 zeroV :: Vec
 zeroV = vec 0 0 0
@@ -95,23 +82,23 @@ Vec ax ay az ^-^ Vec bx by bz = Vec (ax-bx) (ay-by) (az-bz)
 
 -- | Scalar multiplication, where the scalar is on the left
 --   and the vector is on the right.
-(*^) :: Double -> Vec -> Vec
+(*^) :: R -> Vec -> Vec
 c *^ Vec ax ay az = Vec (c*ax) (c*ay) (c*az)
 
 -- | Scalar multiplication, where the scalar is on the right
 --   and the vector is on the left.
-(^*) :: Vec -> Double -> Vec
+(^*) :: Vec -> R -> Vec
 Vec ax ay az ^* c = Vec (c*ax) (c*ay) (c*az)
 
 -- | Division of a vector by a scalar.
-(^/) :: Vec -> Double -> Vec
+(^/) :: Vec -> R -> Vec
 Vec ax ay az ^/ c = Vec (ax/c) (ay/c) (az/c)
 
 -- | Dot product of two vectors.
-(<.>) :: Vec -> Vec -> Double
+(<.>) :: Vec -> Vec -> R
 Vec ax ay az <.> Vec bx by bz = ax*bx + ay*by + az*bz
 
 -- | Magnitude of a vector.
-magnitude :: Vec -> Double
+magnitude :: Vec -> R
 magnitude v = sqrt(v <.> v)
 

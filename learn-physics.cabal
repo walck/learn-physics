@@ -1,5 +1,5 @@
 Name:                learn-physics
-Version:             0.6.2
+Version:             0.6.3
 Synopsis:            Haskell code for learning physics
 Description:         A library of functions for vector calculus,
                      calculation of electric field, electric flux,
@@ -13,67 +13,68 @@ Category:            Physics
 Build-type:          Simple
 Cabal-version:       >=1.8
 Library
-  Exposed-modules:     Physics.Learn.Charge
-                       Physics.Learn.Current
-                       Physics.Learn.Position
-                       Physics.Learn.Curve
-                       Physics.Learn.Surface
-                       Physics.Learn.Volume
+  Exposed-modules:     Physics.Learn
+                       Physics.Learn.BeamStack
+                       Physics.Learn.BlochSphere
                        Physics.Learn.CarrotVec
-                       Physics.Learn.SimpleVec
+                       Physics.Learn.Charge
                        Physics.Learn.CommonVec
+                       Physics.Learn.CompositeQuadrature
                        Physics.Learn.CoordinateFields
                        Physics.Learn.CoordinateSystem
-                       Physics.Learn.StateSpace
-                       Physics.Learn.RungeKutta
-                       Physics.Learn.CompositeQuadrature
-                       Physics.Learn.RootFinding
-                       Physics.Learn.Mechanics
-                       Physics.Learn.Visual.PlotTools
-                       Physics.Learn.Visual.GlossTools
-                       Physics.Learn
-                       Physics.Learn.QuantumMat
+                       Physics.Learn.Current
+                       Physics.Learn.Curve
                        Physics.Learn.Ket
-                       Physics.Learn.BeamStack
---                       Physics.Learn.BlochSphere
---                       Physics.Learn.Visual.VisTools
+                       Physics.Learn.Mechanics
+                       Physics.Learn.Position
+                       Physics.Learn.QuantumMat
+                       Physics.Learn.RootFinding
+                       Physics.Learn.RungeKutta
+                       Physics.Learn.Schrodinger1D
+                       Physics.Learn.SimpleVec
+                       Physics.Learn.StateSpace
+                       Physics.Learn.Surface
+                       Physics.Learn.Visual.GlossTools
+                       Physics.Learn.Visual.PlotTools
+                       Physics.Learn.Visual.VisTools
+                       Physics.Learn.Volume
   Build-depends:       base >= 4.7 && < 4.12,
                        vector-space >= 0.8.4,
                        hmatrix >= 0.17,
                        gloss >= 1.8,
-                       gnuplot >= 0.5 && < 0.6
---                       not-gloss >= 0.5.0.4,
---                       spatial-math >= 0.2,
+                       gnuplot >= 0.5 && < 0.6,
+                       not-gloss >= 0.5.0.4,
+                       spatial-math >= 0.2
   Hs-source-dirs:      src
 
 Source-repository head
   type:                git
   location:            https://github.com/walck/learn-physics
 
--- Executable           learn-physics-PlaneWave
---   Main-is:           examples/src/PlaneWave.hs
---   Build-depends:     not-gloss >= 0.7.4,
---                      base >= 4.5 && < 4.12,
---                      learn-physics
+Executable           learn-physics-PlaneWave
+  Main-is:           examples/src/PlaneWave.hs
+  Build-depends:     not-gloss >= 0.7.4,
+                     base >= 4.5 && < 4.12,
+                     learn-physics
 
--- Executable           learn-physics-eFieldLine3D
---   Main-is:           examples/src/eFieldLine3D.hs
---   Build-depends:     not-gloss >= 0.7.4,
---                      base >= 4.5 && < 4.12,
---                      learn-physics
+Executable           learn-physics-eFieldLine3D
+  Main-is:           examples/src/eFieldLine3D.hs
+  Build-depends:     not-gloss >= 0.7.4,
+                     base >= 4.5 && < 4.12,
+                     learn-physics
 
--- Executable           learn-physics-LorentzForceSimulation
---   Main-is:           examples/src/LorentzForceSimulation.hs
---   Build-depends:     not-gloss >= 0.7.4,
---                      spatial-math >= 0.2,
---                      base >= 4.5 && < 4.12,
---                      learn-physics
+Executable           learn-physics-LorentzForceSimulation
+  Main-is:           examples/src/LorentzForceSimulation.hs
+  Build-depends:     not-gloss >= 0.7.4,
+                     spatial-math >= 0.2,
+                     base >= 4.5 && < 4.12,
+                     learn-physics
 
--- Executable           learn-physics-BCircularLoop
---   Main-is:           examples/src/BCircularLoop.hs
---   Build-depends:     not-gloss >= 0.7.4,
---                      base >= 4.5 && < 4.12,
---                      learn-physics
+Executable           learn-physics-BCircularLoop
+  Main-is:           examples/src/BCircularLoop.hs
+  Build-depends:     not-gloss >= 0.7.4,
+                     base >= 4.5 && < 4.12,
+                     learn-physics
 
 Executable           learn-physics-sunEarth
   Main-is:           examples/src/sunEarthRK4.hs
@@ -93,7 +94,7 @@ Executable           learn-physics-Projectile
                      base >= 4.5 && < 4.12,
                      learn-physics
 
--- Executable           learn-physics-NMR
---   Main-is:           examples/src/NMR.hs
---   Build-depends:     base >= 4.5,
---                      learn-physics
+Executable           learn-physics-NMR
+  Main-is:           examples/src/NMR.hs
+  Build-depends:     base >= 4.5,
+                     learn-physics

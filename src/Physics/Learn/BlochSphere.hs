@@ -1,4 +1,5 @@
 {-# OPTIONS_GHC -Wall #-}
+{-# LANGUAGE CPP #-}
 
 {- |
 Module      :  Physics.Learn.BlochSphere
@@ -74,6 +75,9 @@ import Vis
     , blue
     , red
     )
+#if MIN_VERSION_base(4,11,0)
+import Prelude hiding ((<>))
+#endif
 
 {-
 3 ways to specify the state of a spin-1/2 particle:

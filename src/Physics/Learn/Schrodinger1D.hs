@@ -3,7 +3,7 @@
 
 {- | 
 Module      :  Physics.Learn.Schrodinger1D
-Copyright   :  (c) Scott N. Walck 2015-2017
+Copyright   :  (c) Scott N. Walck 2015-2018
 License     :  BSD3 (see LICENSE)
 Maintainer  :  Scott N. Walck <walck@lvc.edu>
 Stability   :  experimental
@@ -23,7 +23,7 @@ module Physics.Learn.Schrodinger1D
     , stepV
     , wall
     -- * Initial wavefunctions
---    , harm
+    --    , harm
     , coherent
     , gaussian
     , movingGaussian
@@ -32,6 +32,8 @@ module Physics.Learn.Schrodinger1D
     , hamiltonianMatrix
     , expectX
     , picture
+    , xRange
+    , listForm
     )
     where
 
@@ -42,6 +44,9 @@ import Data.Complex
 import Graphics.Gloss
     ( Picture(..)
     , yellow
+    , black
+    , Display(..)
+    , display
     )
 -- import Math.Polynomial.Hermite
 --     ( evalPhysHermite
@@ -55,14 +60,12 @@ import Numeric.LinearAlgebra
     , (<.>)
     , fromLists
     , toList
+    , size
     )
 import Physics.Learn.QuantumMat
     ( probVector
     , timeEv
     )
-
-hbar :: Double
-hbar = 1
 
 --i :: Complex Double
 --i = 0 :+ 1
@@ -144,26 +147,25 @@ wall w v0 x0 x
 --     = exp (-u**2/2) * evalPhysHermite n u / sqrt (2^n * fact n * sqrt pi) :+ 0
 
 coherent
-    :: Double                    -- ^ mass of particle
-    -> Double                    -- ^ angular frequency
-    -> Complex Double            -- ^ parameter z
-    -> Double -> Complex Double  -- ^ wavefunction
-coherent m omega z x
-    = ((m*omega/(pi*hbar))**0.25 * exp(-m*omega*x**2/(2*hbar)) :+ 0)
-      * exp(-z**2/2 + (sqrt(2*m*omega/hbar) * x :+ 0) * z)
+    :: R       -- ^ length scale = sqrt(hbar / m omega)
+    -> C       -- ^ parameter z
+    -> R -> C  -- ^ wavefunction
+coherent l z x
+    = ((1/(pi*l**2))**0.25 * exp(-x**2/(2*l**2)) :+ 0)
+      * exp(-z**2/2 + (sqrt(2/l**2) * x :+ 0) * z)
 
 gaussian
-    :: Double                    -- ^ width parameter
-    -> Double                    -- ^ center of wave packet
-    -> Double -> Complex Double  -- ^ wavefunction
+    :: R       -- ^ width parameter
+    -> R       -- ^ center of wave packet
+    -> R -> C  -- ^ wavefunction
 gaussian a x0 x = exp(-(x-x0)**2/(2*a**2)) / sqrt(a * sqrt pi) :+ 0
 
 movingGaussian
-    :: Double                    -- ^ width parameter
-    -> Double                    -- ^ center of wave packet
-    -> Double                    -- ^ momentum
-    -> Double -> Complex Double  -- ^ wavefunction
-movingGaussian a x0 p0 x = exp((0 :+ p0*x/hbar) - ((x-x0)**2/(2*a**2) :+ 0)) / (sqrt(a * sqrt pi) :+ 0)
+    :: R       -- ^ width parameter
+    -> R       -- ^ center of wave packet
+    -> R       -- ^ l0 = hbar / p0
+    -> R -> C  -- ^ wavefunction
+movingGaussian a x0 l0 x = exp((0 :+ x/l0) - ((x-x0)**2/(2*a**2) :+ 0)) / (sqrt(a * sqrt pi) :+ 0)
 
 ---------------
 -- Utilities --
@@ -252,6 +254,20 @@ picture (ymin,ymax) xs psi
              screenWidth  = 1000
              screenHeight =  750
 
+-- options for representing wave functions
+-- 1.  A function R -> C
+-- 2.  ([R],Vector C), where lengths match
+-- 3.  [(R,C)]
+-- 4.  (R,R,Vector C)  -- xmin, xmax, state vector (assumes even spacing)
+
+-- 2,4 are best for evolution
+
+listForm :: (R,R,Vector C) -> ([R],Vector C)
+listForm (xmin,xmax,v)
+    = let dt = (xmax - xmin) / fromIntegral (size v - 1)
+      in ([xmin, xmin + dt .. xmax],v)
+
+
 {-
 -- | Given an initial state vector and
 --   state propagation function, produce a simulation.
@@ -296,20 +312,30 @@ def triDiagMatrixMult(square_arr,arr):
     result[num-1] = square_arr[num-1][num-2] * arr[num-2] \
         + square_arr[num-1][num-1] * arr[num-1]
     return result
+-}
 
-################
-# Main program #
-################
+------------------
+-- Main program --
+------------------
 
+-- n is number of points
+-- n-1 is number of intervals
+xRange :: R -> R -> Int -> [R]
+xRange xmin xmax n
+    = let dt = (xmax - xmin) / fromIntegral (n - 1)
+      in [xmin, xmin + dt .. xmax]
+
+
+{-
 if __name__ == '__main__':
     m = 1
     omega = 10
     xmin = -2.0
     xmax =  2.0
-#    num = 256
+    num = 256
     num = 128
     dt = 0.0002
-#    dt = 0.01
+    dt = 0.01
     xs = linspace(xmin,xmax,num)
     dx = xs[1] - xs[0]
 
@@ -317,16 +343,16 @@ if __name__ == '__main__':
     shiftedHarm = lambda x: harm0(m,omega)(x-1)
     coh = coherent(m,omega,1)
 
-#    print sum(conj(psi)*psi)*dx
+    print sum(conj(psi)*psi)*dx
 
     harmV = harmonicV(m * omega**2)
 
-#    V = doubleWell(1,0.1*hbar*omega)
+    V = doubleWell(1,0.1*hbar*omega)
     V = squareWell(1.0,hbar*omega)
-#    V = harmonicV(m*omega**2)
-#    V = stepV(10*hbar*omega)
-#    V = wall(0.1,14.0*hbar*omega,0)
-#    V = freeV
+    V = harmonicV(m*omega**2)
+    V = stepV(10*hbar*omega)
+    V = wall(0.1,14.0*hbar*omega,0)
+    V = freeV
 
     H = matrixH(m,xmin,xmax,num,V)
     I = matrixI(num)
@@ -338,13 +364,13 @@ if __name__ == '__main__':
     psi0 = normalize(transpose(vecs)[0],dx)
     psi1 = normalize(transpose(vecs)[1],dx)
 
-#    psi = func2psi(gaussian(0.3,1),xmin,xmax,num)
-#    psi = func2psi(coh,xmin,xmax,num)
-#    psi = func2psi(movingGaussian(0.3,10,-1),xmin,xmax,num)
+    psi = func2psi(gaussian(0.3,1),xmin,xmax,num)
+    psi = func2psi(coh,xmin,xmax,num)
+    psi = func2psi(movingGaussian(0.3,10,-1),xmin,xmax,num)
 
     psi = psi0
-#    psi = psi1
-#    psi = (psi0 + psi1)/sqrt(2)
+    psi = psi1
+    psi = (psi0 + psi1)/sqrt(2)
 
     E = sum(conj(psi)*triDiagMatrixMult(H,psi)).real*dx
 
@@ -368,7 +394,7 @@ if __name__ == '__main__':
     pot = curve(color=color.green,pos=pot_curve,radius=0.01)
 
     Eline = curve(color=(1,1,0),pos=[(x,E/Escale) for x in xs])
-#    axis = curve(color=color.white,pos=[(x,0) for x in xs])
+    axis = curve(color=color.white,pos=[(x,0) for x in xs])
 
     while 1:
         psi = solve(leftM,triDiagMatrixMult(rightM,psi))

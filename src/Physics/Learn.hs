@@ -166,12 +166,12 @@ module Physics.Learn
     , arrow
     , thickArrow
     -- ** Vis library
-    -- , v3FromVec
-    -- , v3FromPos
-    -- , visVec
-    -- , oneVector
-    -- , displayVectorField
-    -- , curveObject
+    , v3FromVec
+    , v3FromPos
+    , visVec
+    , oneVector
+    , displayVectorField
+    , curveObject
     )
     where
 
@@ -275,14 +275,14 @@ import Physics.Learn.Volume
     , shiftVolume
     , volumeIntegral
     )
--- import Physics.Learn.Visual.VisTools
---     ( v3FromVec
---     , v3FromPos
---     , visVec
---     , oneVector
---     , displayVectorField
---     , curveObject
---     )
+import Physics.Learn.Visual.VisTools
+    ( v3FromVec
+    , v3FromPos
+    , visVec
+    , oneVector
+    , displayVectorField
+    , curveObject
+    )
 import Physics.Learn.StateSpace
     ( StateSpace(..)
     , (.-^)
