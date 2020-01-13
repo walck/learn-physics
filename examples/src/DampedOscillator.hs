@@ -25,4 +25,14 @@ plot2 = plotList [Title "Damped Harmonic Oscillator"
                  ] (map (\(t,x,_) -> (t,x)) $ take 1000 theStates)
 
 main :: IO ()
-main = plot2
+main = main2
+
+main2 :: IO ()
+main2 = plotPath
+        [Title "Damped Harmonic Oscillator"
+        ,XLabel "Time (s)"
+        ,YLabel "Voltage (V)"
+        ,Key Nothing
+        ,PNG "learn-physics-DHO.png"
+        ] (map (\(t,x,_) -> (t,x)) $ take 1000 theStates)
+        >> putStrLn "output sent to file learn-physics-DHO.png"

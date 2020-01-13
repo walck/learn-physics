@@ -1,10 +1,10 @@
 {-# OPTIONS_GHC -Wall #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE Safe #-}
 
 {- | 
 Module      :  Physics.Learn.RungeKutta
-Copyright   :  (c) Scott N. Walck 2012-2014
+Copyright   :  (c) Scott N. Walck 2012-2019
 License     :  BSD3 (see LICENSE)
 Maintainer  :  Scott N. Walck <walck@lvc.edu>
 Stability   :  experimental

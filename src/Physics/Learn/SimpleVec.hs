@@ -3,7 +3,7 @@
 
 {- | 
 Module      :  Physics.Learn.SimpleVec
-Copyright   :  (c) Scott N. Walck 2012-2018
+Copyright   :  (c) Scott N. Walck 2012-2019
 License     :  BSD3 (see LICENSE)
 Maintainer  :  Scott N. Walck <walck@lvc.edu>
 Stability   :  experimental
@@ -43,6 +43,7 @@ module Physics.Learn.SimpleVec
 
 import Physics.Learn.CommonVec
     ( Vec(..)
+    , R
     , vec
     , iHat
     , jHat
@@ -56,8 +57,6 @@ infixl 7 *^
 infixl 7 ^*
 infixl 7 ^/
 infixl 7 <.>
-
-type R = Double
 
 -- | The zero vector.
 zeroV :: Vec

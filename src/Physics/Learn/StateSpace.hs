@@ -1,10 +1,10 @@
 {-# OPTIONS_GHC -Wall -fno-warn-orphans #-}
 {-# LANGUAGE FlexibleContexts, FlexibleInstances, TypeFamilies #-}
-{-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE Safe #-}
 
 {- | 
 Module      :  Physics.Learn.StateSpace
-Copyright   :  (c) Scott N. Walck 2014
+Copyright   :  (c) Scott N. Walck 2014-2019
 License     :  BSD3 (see LICENSE)
 Maintainer  :  Scott N. Walck <walck@lvc.edu>
 Stability   :  experimental

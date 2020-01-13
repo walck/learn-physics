@@ -8,6 +8,7 @@ language: c
 # release of a major GHC version. Setting HPVER implictly sets
 # GHCVER. Omit lines with versions you don't need/want testing for.
 env:
+ - CABALVER=2.4  GHCVER=8.8.1
  - CABALVER=2.4  GHCVER=8.6.5
  - CABALVER=2.2  GHCVER=8.4.4
  - CABALVER=2.0  GHCVER=8.2.2

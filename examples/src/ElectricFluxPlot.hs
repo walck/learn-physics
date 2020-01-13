@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wall #-}
 
--- | Electric flux plot
+-- | Electric flux plot.  Load this file into GHCi and ask for plot1.
 
 module Main where
 

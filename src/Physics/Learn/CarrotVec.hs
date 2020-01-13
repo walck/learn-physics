@@ -4,7 +4,7 @@
 
 {- | 
 Module      :  Physics.Learn.CarrotVec
-Copyright   :  (c) Scott N. Walck 2011-2018
+Copyright   :  (c) Scott N. Walck 2011-2019
 License     :  BSD3 (see LICENSE)
 Maintainer  :  Scott N. Walck <walck@lvc.edu>
 Stability   :  experimental
@@ -26,6 +26,7 @@ they are just defined differently.
 
 module Physics.Learn.CarrotVec
     ( Vec
+    , R
     , xComp
     , yComp
     , zComp
@@ -65,6 +66,7 @@ import Data.VectorSpace
     )
 import Physics.Learn.CommonVec
     ( Vec(..)
+    , R
     , xComp
     , yComp
     , zComp
@@ -81,7 +83,7 @@ instance AdditiveGroup Vec where
     Vec ax ay az ^+^ Vec bx by bz = Vec (ax+bx) (ay+by) (az+bz)
 
 instance VectorSpace Vec where
-    type Scalar Vec = Double
+    type Scalar Vec = R
     c *^ Vec ax ay az = Vec (c*ax) (c*ay) (c*az)
 
 instance InnerSpace Vec where

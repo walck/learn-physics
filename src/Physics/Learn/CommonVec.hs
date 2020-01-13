@@ -3,7 +3,7 @@
 
 {- | 
 Module      :  Physics.Learn.CommonVec
-Copyright   :  (c) Scott N. Walck 2012-2014
+Copyright   :  (c) Scott N. Walck 2012-2019
 License     :  BSD3 (see LICENSE)
 Maintainer  :  Scott N. Walck <walck@lvc.edu>
 Stability   :  experimental
@@ -23,6 +23,7 @@ appropriate type class.
 
 module Physics.Learn.CommonVec
     ( Vec(..)
+    , R
     , vec
     , (><)
     , iHat
@@ -33,10 +34,12 @@ module Physics.Learn.CommonVec
 
 infixl 7 ><
 
+type R = Double
+
 -- | A type for vectors.
-data Vec = Vec { xComp :: Double  -- ^ x component
-               , yComp :: Double  -- ^ y component
-               , zComp :: Double  -- ^ z component
+data Vec = Vec { xComp :: R  -- ^ x component
+               , yComp :: R  -- ^ y component
+               , zComp :: R  -- ^ z component
                } deriving (Eq)
 
 instance Show Vec where
@@ -50,9 +53,9 @@ showDouble x
     | otherwise  = show x
 
 -- | Form a vector by giving its x, y, and z components.
-vec :: Double  -- ^ x component
-    -> Double  -- ^ y component
-    -> Double  -- ^ z component
+vec :: R  -- ^ x component
+    -> R  -- ^ y component
+    -> R  -- ^ z component
     -> Vec
 vec = Vec
 
