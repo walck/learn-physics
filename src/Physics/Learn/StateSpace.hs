@@ -1,55 +1,55 @@
-{-# OPTIONS_GHC -Wall -fno-warn-orphans #-}
-{-# LANGUAGE FlexibleContexts, FlexibleInstances, TypeFamilies #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE Safe #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# OPTIONS_GHC -Wall -fno-warn-orphans #-}
 
-{- | 
-Module      :  Physics.Learn.StateSpace
-Copyright   :  (c) Scott N. Walck 2014-2019
-License     :  BSD3 (see LICENSE)
-Maintainer  :  Scott N. Walck <walck@lvc.edu>
-Stability   :  experimental
-
-A 'StateSpace' is an affine space where the associated vector space
-has scalars that are instances of 'Fractional'.
-If p is an instance of 'StateSpace', then the associated vectorspace
-'Diff' p is intended to represent the space of (time) derivatives
-of paths in p.
-
-'StateSpace' is very similar to Conal Elliott's 'AffineSpace'.
--}
-
+-- |
+--Module      :  Physics.Learn.StateSpace
+--Copyright   :  (c) Scott N. Walck 2014-2019
+--License     :  BSD3 (see LICENSE)
+--Maintainer  :  Scott N. Walck <walck@lvc.edu>
+--Stability   :  experimental
+--
+--A 'StateSpace' is an affine space where the associated vector space
+--has scalars that are instances of 'Fractional'.
+--If p is an instance of 'StateSpace', then the associated vectorspace
+--'Diff' p is intended to represent the space of (time) derivatives
+--of paths in p.
+--
+--'StateSpace' is very similar to Conal Elliott's 'AffineSpace'.
 module Physics.Learn.StateSpace
-    ( StateSpace(..)
-    , (.-^)
-    , Time
-    , DifferentialEquation
-    , InitialValueProblem
-    , EvolutionMethod
-    , SolutionMethod
-    , stepSolution
-    , eulerMethod
-    )
-    where
+  ( StateSpace (..)
+  , (.-^)
+  , Time
+  , DifferentialEquation
+  , InitialValueProblem
+  , EvolutionMethod
+  , SolutionMethod
+  , stepSolution
+  , eulerMethod
+  )
+where
 
 import Data.AdditiveGroup
-    ( AdditiveGroup(..)
-    )
+  ( AdditiveGroup (..)
+  )
 import Data.VectorSpace
-    ( VectorSpace(..)
-    )
-import Physics.Learn.Position
-    ( Position
-    , shiftPosition
-    , displacement
-    )
+  ( VectorSpace (..)
+  )
 import Physics.Learn.CarrotVec
-    ( Vec
-    , (^*)
-    , (^-^)
-    )
+  ( Vec
+  , (^*)
+  )
+import Physics.Learn.Position
+  ( Position
+  , displacement
+  , shiftPosition
+  )
 
 infixl 6 .+^, .-^
-infix  6 .-.
+
+infix 6 .-.
 
 -- | An instance of 'StateSpace' is a data type that can serve as the state
 --   of some system.  Alternatively, a 'StateSpace' is a collection of dependent
@@ -60,10 +60,12 @@ infix  6 .-.
 class (VectorSpace (Diff p), Fractional (Scalar (Diff p))) => StateSpace p where
   -- | Associated vector space
   type Diff p
+
   -- | Subtract points
-  (.-.)  :: p -> p -> Diff p
+  (.-.) :: p -> p -> Diff p
+
   -- | Point plus vector
-  (.+^)  :: p -> Diff p -> p
+  (.+^) :: p -> Diff p -> p
 
 -- | The scalars of the associated vector space can be thought of as time intervals.
 type Time p = Scalar (Diff p)
@@ -73,48 +75,55 @@ type Time p = Scalar (Diff p)
 p .-^ v = p .+^ negateV v
 
 instance StateSpace Double where
-    type Diff Double = Double
-    (.-.) = (-)
-    (.+^) = (+)
+  type Diff Double = Double
+  (.-.) = (-)
+  (.+^) = (+)
 
 instance StateSpace Vec where
-    type Diff Vec = Vec
-    (.-.) = (^-^)
-    (.+^) = (^+^)
+  type Diff Vec = Vec
+  (.-.) = (^-^)
+  (.+^) = (^+^)
 
 -- | Position is not a vector, but displacement (difference in position) is a vector.
 instance StateSpace Position where
-    type Diff Position = Vec
-    (.-.) = flip displacement
-    (.+^) = flip shiftPosition
+  type Diff Position = Vec
+  (.-.) = flip displacement
+  (.+^) = flip shiftPosition
 
-instance (StateSpace p, StateSpace q, Time p ~ Time q) => StateSpace (p,q) where
-  type Diff (p,q)   = (Diff p, Diff q)
-  (p,q) .-. (p',q') = (p .-. p', q .-. q')
-  (p,q) .+^ (u,v)   = (p .+^ u, q .+^ v)
+instance (StateSpace p, StateSpace q, Time p ~ Time q) => StateSpace (p, q) where
+  type Diff (p, q) = (Diff p, Diff q)
+  (p, q) .-. (p', q') = (p .-. p', q .-. q')
+  (p, q) .+^ (u, v) = (p .+^ u, q .+^ v)
 
-instance (StateSpace p, StateSpace q, StateSpace r, Time p ~ Time q
-         ,Time q ~ Time r) => StateSpace (p,q,r) where
-  type Diff (p,q,r)      = (Diff p, Diff q, Diff r)
-  (p,q,r) .-. (p',q',r') = (p .-. p', q .-. q', r .-. r')
-  (p,q,r) .+^ (u,v,w)    = (p .+^ u, q .+^ v, r .+^ w)
+instance
+  ( StateSpace p
+  , StateSpace q
+  , StateSpace r
+  , Time p ~ Time q
+  , Time q ~ Time r
+  )
+  => StateSpace (p, q, r)
+  where
+  type Diff (p, q, r) = (Diff p, Diff q, Diff r)
+  (p, q, r) .-. (p', q', r') = (p .-. p', q .-. q', r .-. r')
+  (p, q, r) .+^ (u, v, w) = (p .+^ u, q .+^ v, r .+^ w)
 
 inf :: a -> [a]
 inf x = x : inf x
 
 instance AdditiveGroup v => AdditiveGroup [v] where
-    zeroV   = inf zeroV
-    (^+^)   = zipWith (^+^)
-    negateV = map negateV
+  zeroV = inf zeroV
+  (^+^) = zipWith (^+^)
+  negateV = map negateV
 
 instance VectorSpace v => VectorSpace [v] where
-    type Scalar [v] = Scalar v
-    c *^ xs = [c *^ x | x <- xs]
+  type Scalar [v] = Scalar v
+  c *^ xs = [c *^ x | x <- xs]
 
 instance StateSpace p => StateSpace [p] where
-    type Diff [p] = [Diff p]
-    (.-.) = zipWith (.-.)
-    (.+^) = zipWith (.+^)
+  type Diff [p] = [Diff p]
+  (.-.) = zipWith (.-.)
+  (.+^) = zipWith (.+^)
 
 -- | A differential equation expresses how the dependent variables (state)
 --   change with the independent variable (time).
@@ -134,11 +143,15 @@ type SolutionMethod state = InitialValueProblem state -> [state]
 -- | An evolution method is a way of approximating the state
 --   after advancing a finite interval in the independent
 --   variable (time) from a given state.
-type EvolutionMethod state
-    = DifferentialEquation state  -- ^ differential equation
-    -> Time state                 -- ^ time interval
-    -> state                      -- ^ initial state
-    -> state                      -- ^ evolved state
+type EvolutionMethod state =
+  DifferentialEquation state
+  -- ^ differential equation
+  -> Time state
+  -- ^ time interval
+  -> state
+  -- ^ initial state
+  -> state
+  -- ^ evolved state
 
 -- | Given an evolution method and a time step, return the solution method
 --   which applies the evolution method repeatedly with with given time step.

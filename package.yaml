@@ -112,3 +112,36 @@ executables:
     dependencies:
       - base
       - learn-physics
+
+  learn-physics-HarmonicOscillator:
+    main: examples/src/HarmonicOscillator.hs
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - base
+      - learn-physics
+      - gloss
+
+  learn-physics-ElectricFluxPlot:
+    main: examples/src/ElectricFluxPlot.hs
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - base
+      - learn-physics
+      - gnuplot
+
+  learn-physics-DampedOscillator:
+    main: examples/src/DampedOscillator.hs
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - base
+      - learn-physics
+      - gnuplot

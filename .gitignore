@@ -9,6 +9,7 @@ stack20190510/
 stack20190513/
 _darcs/
 .stack-work/
+.devenv/
 cabal.project-20200110
 cabal.project.local
 Exercises.hs

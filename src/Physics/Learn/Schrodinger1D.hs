@@ -1,74 +1,71 @@
-{-# OPTIONS_GHC -Wall #-}
 {-# LANGUAGE Trustworthy #-}
+{-# OPTIONS_GHC -Wall #-}
 
-{- | 
-Module      :  Physics.Learn.Schrodinger1D
-Copyright   :  (c) Scott N. Walck 2015-2018
-License     :  BSD3 (see LICENSE)
-Maintainer  :  Scott N. Walck <walck@lvc.edu>
-Stability   :  experimental
-
-This module contains functions to
-solve the (time dependent) Schrodinger equation
-in one spatial dimension for a given potential function.
--}
-
+-- |
+-- Module      :  Physics.Learn.Schrodinger1D
+-- Copyright   :  (c) Scott N. Walck 2015-2018
+-- License     :  BSD3 (see LICENSE)
+-- Maintainer  :  Scott N. Walck <walck@lvc.edu>
+-- Stability   :  experimental
+--
+-- This module contains functions to
+-- solve the (time dependent) Schrodinger equation
+-- in one spatial dimension for a given potential function.
 module Physics.Learn.Schrodinger1D
-    (
-    -- * Potentials
-      freeV
-    , harmonicV
-    , squareWell
-    , doubleWell
-    , stepV
-    , wall
+  ( -- * Potentials
+    freeV
+  , harmonicV
+  , squareWell
+  , doubleWell
+  , stepV
+  , wall
+
     -- * Initial wavefunctions
-    --    , harm
-    , coherent
-    , gaussian
-    , movingGaussian
+
+  --    , harm
+  , coherent
+  , gaussian
+  , movingGaussian
+
     -- * Utilities
-    , stateVectorFromWavefunction
-    , hamiltonianMatrix
-    , expectX
-    , picture
-    , xRange
-    , listForm
-    )
-    where
+  , stateVectorFromWavefunction
+  , hamiltonianMatrix
+  , expectX
+  , picture
+  , xRange
+  , listForm
+  , fact
+  )
+where
 
 import Data.Complex
-    ( Complex(..)
-    , magnitude
-    )
+  ( Complex (..)
+  , magnitude
+  )
 import Graphics.Gloss
-    ( Picture(..)
-    , yellow
-    , black
-    , Display(..)
-    , display
-    )
+  ( Picture (..)
+  , yellow
+  )
 -- import Math.Polynomial.Hermite
 --     ( evalPhysHermite
 --     )
 import Numeric.LinearAlgebra
-    ( R
-    , C
-    , Vector
-    , Matrix
-    , (|>)
-    , (<.>)
-    , fromLists
-    , toList
-    , size
-    )
+  ( C
+  , Matrix
+  , R
+  , Vector
+  , fromLists
+  , size
+  , toList
+  , (<.>)
+  , (|>)
+  )
 import Physics.Learn.QuantumMat
-    ( probVector
-    , timeEv
-    )
+  ( probVector
+  )
 
---i :: Complex Double
---i = 0 :+ 1
+-- i :: Complex Double
+-- i = 0 :+ 1
 
 ----------------
 -- Potentials --
@@ -77,62 +74,83 @@ import Physics.Learn.QuantumMat
 -- | Free potential.
 --   The potential energy is zero everywhere.
 freeV
-    :: Double  -- ^ position
-    -> Double  -- ^ potential energy
+  :: Double
+  -- ^ position
+  -> Double
+  -- ^ potential energy
 freeV _x = 0
 
 -- | Harmonic potential.
 --   This is the potential energy of a linear spring.
 harmonicV
-    :: Double  -- ^ spring constant
-    -> Double  -- ^ position
-    -> Double  -- ^ potential energy
-harmonicV k x = k * x**2 / 2
+  :: Double
+  -- ^ spring constant
+  -> Double
+  -- ^ position
+  -> Double
+  -- ^ potential energy
+harmonicV k x = k * x ** 2 / 2
 
 -- | A double well potential.
 --   Potential energy is a quartic function of position
 --   that gives two wells, each approximately harmonic
 --   at the bottom of the well.
 doubleWell
-    :: Double  -- ^ width (for both wells and well separation)
-    -> Double  -- ^ energy height of barrier between wells
-    -> Double  -- ^ position
-    -> Double  -- ^ potential energy
-doubleWell a v0 x = v0 * ((x**2 - a**2)/a**2)**2
+  :: Double
+  -- ^ width (for both wells and well separation)
+  -> Double
+  -- ^ energy height of barrier between wells
+  -> Double
+  -- ^ position
+  -> Double
+  -- ^ potential energy
+doubleWell a v0 x = v0 * ((x ** 2 - a ** 2) / a ** 2) ** 2
 
 -- | Finite square well potential.
 --   Potential is zero inside the well,
 --   and constant outside the well.
 --   Well is centered at the origin.
 squareWell
-    :: Double  -- ^ well width
-    -> Double  -- ^ energy height of well
-    -> Double  -- ^ position
-    -> Double  -- ^ potential energy
+  :: Double
+  -- ^ well width
+  -> Double
+  -- ^ energy height of well
+  -> Double
+  -- ^ position
+  -> Double
+  -- ^ potential energy
 squareWell l v0 x
-    | abs x < l/2  = 0
-    | otherwise    = v0
+  | abs x < l / 2 = 0
+  | otherwise = v0
 
 -- | A step barrier potential.
 --   Potential is zero to left of origin.
 stepV
-    :: Double  -- ^ energy height of barrier (to the right of origin)
-    -> Double  -- ^ position
-    -> Double  -- ^ potential energy
+  :: Double
+  -- ^ energy height of barrier (to the right of origin)
+  -> Double
+  -- ^ position
+  -> Double
+  -- ^ potential energy
 stepV v0 x
-    | x < 0      = 0
-    | otherwise  = v0
+  | x < 0 = 0
+  | otherwise = v0
 
 -- | A potential barrier with thickness and height.
 wall
-    :: Double  -- ^ thickness of wall
-    -> Double  -- ^ energy height of barrier
-    -> Double  -- ^ position of center of barrier
-    -> Double  -- ^ position
-    -> Double  -- ^ potential energy
+  :: Double
+  -- ^ thickness of wall
+  -> Double
+  -- ^ energy height of barrier
+  -> Double
+  -- ^ position of center of barrier
+  -> Double
+  -- ^ position
+  -> Double
+  -- ^ potential energy
 wall w v0 x0 x
-    | abs (x-x0) < w/2  = v0
-    | otherwise         = 0
+  | abs (x - x0) < w / 2 = v0
+  | otherwise = 0
 
 ---------------------------
 -- Initial wavefunctions --
@@ -147,25 +165,38 @@ wall w v0 x0 x
 --     = exp (-u**2/2) * evalPhysHermite n u / sqrt (2^n * fact n * sqrt pi) :+ 0
 
 coherent
-    :: R       -- ^ length scale = sqrt(hbar / m omega)
-    -> C       -- ^ parameter z
-    -> R -> C  -- ^ wavefunction
-coherent l z x
-    = ((1/(pi*l**2))**0.25 * exp(-x**2/(2*l**2)) :+ 0)
-      * exp(-z**2/2 + (sqrt(2/l**2) * x :+ 0) * z)
+  :: R
+  -- ^ length scale = sqrt(hbar / m omega)
+  -> C
+  -- ^ parameter z
+  -> R
+  -> C
+  -- ^ wavefunction
+coherent l z x =
+  ((1 / (pi * l ** 2)) ** 0.25 * exp (-x ** 2 / (2 * l ** 2)) :+ 0)
+    * exp (-z ** 2 / 2 + (sqrt (2 / l ** 2) * x :+ 0) * z)
 
 gaussian
-    :: R       -- ^ width parameter
-    -> R       -- ^ center of wave packet
-    -> R -> C  -- ^ wavefunction
-gaussian a x0 x = exp(-(x-x0)**2/(2*a**2)) / sqrt(a * sqrt pi) :+ 0
+  :: R
+  -- ^ width parameter
+  -> R
+  -- ^ center of wave packet
+  -> R
+  -> C
+  -- ^ wavefunction
+gaussian a x0 x = exp (-(x - x0) ** 2 / (2 * a ** 2)) / sqrt (a * sqrt pi) :+ 0
 
 movingGaussian
-    :: R       -- ^ width parameter
-    -> R       -- ^ center of wave packet
-    -> R       -- ^ l0 = hbar / p0
-    -> R -> C  -- ^ wavefunction
-movingGaussian a x0 l0 x = exp((0 :+ x/l0) - ((x-x0)**2/(2*a**2) :+ 0)) / (sqrt(a * sqrt pi) :+ 0)
+  :: R
+  -- ^ width parameter
+  -> R
+  -- ^ center of wave packet
+  -> R
+  -- ^ l0 = hbar / p0
+  -> R
+  -> C
+  -- ^ wavefunction
+movingGaussian a x0 l0 x = exp ((0 :+ x / l0) - ((x - x0) ** 2 / (2 * a ** 2) :+ 0)) / (sqrt (a * sqrt pi) :+ 0)
 
 ---------------
 -- Utilities --
@@ -173,86 +204,119 @@ movingGaussian a x0 l0 x = exp((0 :+ x/l0) - ((x-x0)**2/(2*a**2) :+ 0)) / (sqrt(
 
 fact :: Int -> Double
 fact 0 = 1
-fact n = fromIntegral n * fact (n-1)
+fact n = fromIntegral n * fact (n - 1)
 
 linspace :: Double -> Double -> Int -> [Double]
-linspace left right num
-    = let dx = (right - left) / fromIntegral (num - 1)
-      in [ left + dx * fromIntegral n | n <- [0..num-1]]
+linspace left right num =
+  let dx = (right - left) / fromIntegral (num - 1)
+   in [left + dx * fromIntegral n | n <- [0 .. num - 1]]
 
 -- | Transform a wavefunction into a state vector.
-stateVectorFromWavefunction :: R         -- ^ lowest x
-                            -> R         -- ^ highest x
-                            -> Int       -- ^ dimension of state vector
-                            -> (R -> C)  -- ^ wavefunction
-                            -> Vector C  -- ^ state vector
-stateVectorFromWavefunction left right num psi
-    = (num |>) [psi x | x <- linspace left right num]
+stateVectorFromWavefunction
+  :: R
+  -- ^ lowest x
+  -> R
+  -- ^ highest x
+  -> Int
+  -- ^ dimension of state vector
+  -> (R -> C)
+  -- ^ wavefunction
+  -> Vector C
+  -- ^ state vector
+stateVectorFromWavefunction left right num psi =
+  (num |>) [psi x | x <- linspace left right num]
 
-hamiltonianMatrix :: R         -- ^ lowest x
-                  -> R         -- ^ highest x
-                  -> Int       -- ^ dimension of state vector
-                  -> R         -- ^ hbar
-                  -> R         -- ^ mass
-                  -> (R -> R)  -- ^ potential energy function
-                  -> Matrix C  -- ^ Hamiltonian Matrix
-hamiltonianMatrix xmin xmax num hbar m pe
-    = let coeff = -hbar**2/(2*m)
-          dx = (xmax - xmin) / fromIntegral (num - 1)
-          diagKEterm = -2 * coeff / dx**2
-          offdiagKEterm = coeff / dx**2
-          xs = linspace xmin xmax num
-      in fromLists [[case abs(i-j) of
-                       0  -> (diagKEterm + pe x) :+ 0
-                       1  -> offdiagKEterm :+ 0
-                       _  -> 0
-                          | j <- [1..num] ] | (i,x) <- zip [1..num] xs]
+hamiltonianMatrix
+  :: R
+  -- ^ lowest x
+  -> R
+  -- ^ highest x
+  -> Int
+  -- ^ dimension of state vector
+  -> R
+  -- ^ hbar
+  -> R
+  -- ^ mass
+  -> (R -> R)
+  -- ^ potential energy function
+  -> Matrix C
+  -- ^ Hamiltonian Matrix
+hamiltonianMatrix xmin xmax num hbar m pe =
+  let coeff = -hbar ** 2 / (2 * m)
+      dx = (xmax - xmin) / fromIntegral (num - 1)
+      diagKEterm = -2 * coeff / dx ** 2
+      offdiagKEterm = coeff / dx ** 2
+      xs = linspace xmin xmax num
+   in fromLists
+        [ [ case abs (i - j) of
+            0 -> (diagKEterm + pe x) :+ 0
+            1 -> offdiagKEterm :+ 0
+            _ -> 0
+          | j <- [1 .. num]
+          ]
+        | (i, x) <- zip [1 .. num] xs
+        ]
 
-expectX :: Vector C  -- ^ state vector
-        -> Vector R  -- ^ vector of x values
-        -> R         -- ^ <X>, expectation value of X
+expectX
+  :: Vector C
+  -- ^ state vector
+  -> Vector R
+  -- ^ vector of x values
+  -> R
+  -- ^ <X>, expectation value of X
 expectX psi xs = probVector psi <.> xs
 
+glossScaleX :: Int -> (Double, Double) -> Double -> Float
+glossScaleX screenWidth (xmin, xmax) x =
+  let w = fromIntegral screenWidth :: Double
+   in realToFrac $ (x - xmin) / (xmax - xmin) * w - w / 2
 
-glossScaleX :: Int -> (Double,Double) -> Double -> Float
-glossScaleX screenWidth (xmin,xmax) x
-    = let w = fromIntegral screenWidth :: Double
-      in realToFrac $ (x - xmin) / (xmax - xmin) * w - w / 2
+glossScaleY :: Int -> (Double, Double) -> Double -> Float
+glossScaleY screenHeight (ymin, ymax) y =
+  let h = fromIntegral screenHeight :: Double
+   in realToFrac $ (y - ymin) / (ymax - ymin) * h - h / 2
 
-glossScaleY :: Int -> (Double,Double) -> Double -> Float
-glossScaleY screenHeight (ymin,ymax) y
-    = let h = fromIntegral screenHeight :: Double
-      in realToFrac $ (y - ymin) / (ymax - ymin) * h - h / 2
-
-glossScalePoint :: (Int,Int)        -- ^ (screenWidth,screenHeight)
-                -> (Double,Double)  -- ^ (xmin,xmax)
-                -> (Double,Double)  -- ^ (ymin,ymax)
-                -> (Double,Double)  -- ^ (x,y)
-                -> (Float,Float)
-glossScalePoint (screenWidth,screenHeight) xMinMax yMinMax (x,y)
-    = (glossScaleX screenWidth  xMinMax x
-      ,glossScaleY screenHeight yMinMax y)
-
+glossScalePoint
+  :: (Int, Int)
+  -- ^ (screenWidth,screenHeight)
+  -> (Double, Double)
+  -- ^ (xmin,xmax)
+  -> (Double, Double)
+  -- ^ (ymin,ymax)
+  -> (Double, Double)
+  -- ^ (x,y)
+  -> (Float, Float)
+glossScalePoint (screenWidth, screenHeight) xMinMax yMinMax (x, y) =
+  ( glossScaleX screenWidth xMinMax x
+  , glossScaleY screenHeight yMinMax y
+  )
 
 -- | Produce a gloss 'Picture' of state vector
 --   for 1D wavefunction.
-picture :: (Double, Double)    -- ^ y range
-        -> [Double]            -- ^ xs
-        -> Vector C            -- ^ state vector
-        -> Picture
-picture (ymin,ymax) xs psi
-    = Color
-      yellow
-      (Line
-       [glossScalePoint
-        (screenWidth,screenHeight)
-        (head xs, last xs)
-        (ymin,ymax)
-        p | p <- zip xs (map magSq $ toList psi)])
-           where
-             magSq = \z -> magnitude z ** 2
-             screenWidth  = 1000
-             screenHeight =  750
+picture
+  :: (Double, Double)
+  -- ^ y range
+  -> [Double]
+  -- ^ xs
+  -> Vector C
+  -- ^ state vector
+  -> Picture
+picture (ymin, ymax) xs psi =
+  Color
+    yellow
+    ( Line
+        [ glossScalePoint
+          (screenWidth, screenHeight)
+          (head xs, last xs)
+          (ymin, ymax)
+          p
+        | p <- zip xs (map magSq $ toList psi)
+        ]
+    )
+  where
+    magSq = \z -> magnitude z ** 2
+    screenWidth = 1000
+    screenHeight = 750
 
 -- options for representing wave functions
 -- 1.  A function R -> C
@@ -262,11 +326,10 @@ picture (ymin,ymax) xs psi
 
 -- 2,4 are best for evolution
 
-listForm :: (R,R,Vector C) -> ([R],Vector C)
-listForm (xmin,xmax,v)
-    = let dt = (xmax - xmin) / fromIntegral (size v - 1)
-      in ([xmin, xmin + dt .. xmax],v)
-
+listForm :: (R, R, Vector C) -> ([R], Vector C)
+listForm (xmin, xmax, v) =
+  let dt = (xmax - xmin) / fromIntegral (size v - 1)
+   in ([xmin, xmin + dt .. xmax], v)
 
 {-
 -- | Given an initial state vector and
@@ -279,7 +342,7 @@ simulate1D xs initial statePropFunc
       where
         display = InWindow "Animation" (screenWidth,screenHeight) (10,10)
         displayFunc (_t,v) = Color yellow (Line [(
-      
+
       white (\tFloat -> Pictures [Color blue (Line (points (realToFrac tFloat)))
                                  ,axes (screenWidth,screenHeight) (xmin,xmax) (ymin,ymax)])
 
@@ -299,7 +362,6 @@ evolutionBlochSphere psi0 ham
     = simulateBlochSphere 0.01 psi0 (stateProp ham)
 
 -}
-
 
 {-
 def triDiagMatrixMult(square_arr,arr):
@@ -321,10 +383,9 @@ def triDiagMatrixMult(square_arr,arr):
 -- n is number of points
 -- n-1 is number of intervals
 xRange :: R -> R -> Int -> [R]
-xRange xmin xmax n
-    = let dt = (xmax - xmin) / fromIntegral (n - 1)
-      in [xmin, xmin + dt .. xmax]
-
+xRange xmin xmax n =
+  let dt = (xmax - xmin) / fromIntegral (n - 1)
+   in [xmin, xmin + dt .. xmax]
 
 {-
 if __name__ == '__main__':

@@ -3,8 +3,8 @@
     nixpkgs.url = "github:NixOS/nixpkgs?ref=haskell-updates";
     devenv.url = "github:cachix/devenv";
     nix-filter.url = "github:numtide/nix-filter";
-    TypeCompose.url = "github:conal/TypeCompose?ref=master";
-    TypeCompose.flake = false;
+    spatial-math.url = "github:smunix/spatial-math?ref=fix.no-TypeCompose";
+    not-gloss.url = "github:smunix/not-gloss?ref=fix.spatial-math-0502";
   };
 
   outputs = { self, nixpkgs, devenv, nix-filter, ... }@inputs:
@@ -27,8 +27,6 @@
                   root = self;
                   exclude = [ (matchExt "cabal") ];
                 }) { }));
-              TypeCompose = callCabal2nix "TypeCompose"
-                (filter { root = inputs.TypeCompose; }) { };
             });
       };
       forAllSystems = f:
@@ -37,18 +35,27 @@
           value = f name;
         }) systems);
     in {
+      inherit overlays;
       packages = forAllSystems (system:
         let
           pkgs = import nixpkgs {
             inherit config system;
-            overlays = [ overlays.default ];
+            overlays = [
+              inputs.spatial-math.overlays.default
+              inputs.not-gloss.overlays.default
+              overlays.default
+            ];
           };
         in { default = pkgs.haskellPackages.learn-physics; });
       devShells = forAllSystems (system:
         let
           pkgs = import nixpkgs {
             inherit config system;
-            overlays = [ overlays.default ];
+            overlays = with inputs; [
+              inputs.spatial-math.overlays.default
+              inputs.not-gloss.overlays.default
+              overlays.default
+            ];
           };
         in {
           default = devenv.lib.mkShell {
@@ -60,13 +67,18 @@
                   setUp
                 '';
                 packages = [
-                  ghcid
                   gnuplot
                   (ghcWithPackages
                     (p: with p; [ learn-physics haskell-language-server ]))
                 ];
-                pre-commit.hooks = { nixfmt.enable = true; };
+                pre-commit.hooks = {
+                  fourmolu.enable = true;
+                  nixfmt.enable = true;
+                };
                 scripts = {
+                  run-ghcid.exec = ''
+                    ${ghcid}/bin/ghcid -W -a -c "cabal repl lib:learn-physics"
+                  '';
                   setUp.exec = ''
                     if [ -f package.yaml ]
                     then
