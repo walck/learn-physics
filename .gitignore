@@ -11,6 +11,7 @@ _darcs/
 .stack-work/
 cabal.project-20200110
 cabal.project.local
+cabal.project.local~*
 Exercises.hs
 examples/src/Testing.hs
 src/PlaneWave.hs
