@@ -1,100 +1,152 @@
-Name:                learn-physics
-Version:             0.6.5
-Synopsis:            Haskell code for learning physics
-Description:         A library of functions for vector calculus,
-                     calculation of electric field, electric flux,
-                     magnetic field, and other quantities in classical mechanics,
-                     electromagnetic theory, and quantum mechanics.
-License:             BSD3
-License-file:        LICENSE
-Author:              Scott N. Walck
-Maintainer:          Scott N. Walck <walck@lvc.edu>
-Category:            Physics
-Build-type:          Simple
-Cabal-version:       >=1.8
-Library
-  Exposed-modules:     Physics.Learn
-                       Physics.Learn.BeamStack
-                       Physics.Learn.BlochSphere
-                       Physics.Learn.CarrotVec
-                       Physics.Learn.Charge
-                       Physics.Learn.CommonVec
-                       Physics.Learn.CompositeQuadrature
-                       Physics.Learn.CoordinateFields
-                       Physics.Learn.CoordinateSystem
-                       Physics.Learn.Current
-                       Physics.Learn.Curve
-                       Physics.Learn.Ket
-                       Physics.Learn.Mechanics
-                       Physics.Learn.Position
-                       Physics.Learn.QuantumMat
-                       Physics.Learn.RootFinding
-                       Physics.Learn.RungeKutta
-                       Physics.Learn.Schrodinger1D
-                       Physics.Learn.SimpleVec
-                       Physics.Learn.StateSpace
-                       Physics.Learn.Surface
-                       Physics.Learn.Visual.GlossTools
-                       Physics.Learn.Visual.PlotTools
-                       Physics.Learn.Visual.VisTools
-                       Physics.Learn.Volume
-  Build-depends:       base >= 4.7 && < 5,
-                       vector-space >= 0.8.4,
-                       hmatrix >= 0.17,
-                       gloss >= 1.8,
-                       gnuplot >= 0.5,
-                       not-gloss >= 0.5.0.4,
-                       spatial-math >= 0.2
-  Hs-source-dirs:      src
+cabal-version: 1.12
 
-Source-repository head
-  type:                git
-  location:            https://github.com/walck/learn-physics
+-- This file has been generated from package.yaml by hpack version 0.35.1.
+--
+-- see: https://github.com/sol/hpack
 
-Executable           learn-physics-PlaneWave
-  Main-is:           examples/src/PlaneWave.hs
-  Build-depends:     not-gloss >= 0.7.4,
-                     base >= 4.5 && < 5,
-                     learn-physics
+name:           learn-physics
+version:        0.6.5
+synopsis:       Haskell code for learning physics
+description:    A library of functions for vector calculus, calculation of electric field, electric flux, magnetic field, and other quantities in classical mechanics, electromagnetic theory, and quantum mechanics.
+category:       Physics
+homepage:       https://github.com/walck/learn-physics#readme
+bug-reports:    https://github.com/walck/learn-physics/issues
+author:         Scott N. Walck
+maintainer:     Scott N. Walck <walck@lvc.edu>
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
 
-Executable           learn-physics-eFieldLine3D
-  Main-is:           examples/src/eFieldLine3D.hs
-  Build-depends:     not-gloss >= 0.7.4,
-                     base >= 4.5 && < 5,
-                     learn-physics
+source-repository head
+  type: git
+  location: https://github.com/walck/learn-physics
 
-Executable           learn-physics-LorentzForceSimulation
-  Main-is:           examples/src/LorentzForceSimulation.hs
-  Build-depends:     not-gloss >= 0.7.4,
-                     spatial-math >= 0.2,
-                     base >= 4.5 && < 5,
-                     learn-physics
+library
+  exposed-modules:
+      Physics.Learn
+      Physics.Learn.AdaptiveQuadrature
+      Physics.Learn.BeamStack
+      Physics.Learn.BlochSphere
+      Physics.Learn.CarrotVec
+      Physics.Learn.Charge
+      Physics.Learn.CommonVec
+      Physics.Learn.CompositeQuadrature
+      Physics.Learn.CoordinateFields
+      Physics.Learn.CoordinateSystem
+      Physics.Learn.Current
+      Physics.Learn.Curve
+      Physics.Learn.Ket
+      Physics.Learn.Mechanics
+      Physics.Learn.Position
+      Physics.Learn.QuantumMat
+      Physics.Learn.RootFinding
+      Physics.Learn.RungeKutta
+      Physics.Learn.Schrodinger1D
+      Physics.Learn.SimpleVec
+      Physics.Learn.StateSpace
+      Physics.Learn.Surface
+      Physics.Learn.Visual.GlossTools
+      Physics.Learn.Visual.PlotTools
+      Physics.Learn.Visual.VisTools
+      Physics.Learn.Volume
+  other-modules:
+      Paths_learn_physics
+  hs-source-dirs:
+      src
+  build-depends:
+      base
+    , gloss
+    , gnuplot
+    , hmatrix
+    , not-gloss
+    , spatial-math
+    , vector-space
+  default-language: Haskell2010
 
-Executable           learn-physics-BCircularLoop
-  Main-is:           examples/src/BCircularLoop.hs
-  Build-depends:     not-gloss >= 0.7.4,
-                     base >= 4.5 && < 5,
-                     learn-physics
+executable learn-physics-BCircularLoop
+  main-is: examples/src/BCircularLoop.hs
+  other-modules:
+      Paths_learn_physics
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base
+    , learn-physics
+    , not-gloss
+  default-language: Haskell2010
 
-Executable           learn-physics-sunEarth
-  Main-is:           examples/src/sunEarthRK4.hs
-  Build-depends:     gloss >= 1.8,
-                     base >= 4.5 && < 5,
-                     learn-physics
+executable learn-physics-LorentzForceSimulation
+  main-is: examples/src/LorentzForceSimulation.hs
+  other-modules:
+      Paths_learn_physics
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base
+    , learn-physics
+    , not-gloss
+    , spatial-math
+  default-language: Haskell2010
 
-Executable           learn-physics-eFieldLine2D
-  Main-is:           examples/src/eFieldLine2D.hs
-  Build-depends:     gloss >= 1.8,
-                     base >= 4.5 && < 5,
-                     learn-physics
+executable learn-physics-NMR
+  main-is: examples/src/NMR.hs
+  other-modules:
+      Paths_learn_physics
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base
+    , learn-physics
+  default-language: Haskell2010
 
-Executable           learn-physics-Projectile
-  Main-is:           examples/src/Projectile.hs
-  Build-depends:     gnuplot >= 0.5,
-                     base >= 4.5 && < 5,
-                     learn-physics
+executable learn-physics-PlaneWave
+  main-is: examples/src/PlaneWave.hs
+  other-modules:
+      Paths_learn_physics
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base
+    , learn-physics
+    , not-gloss
+  default-language: Haskell2010
 
-Executable           learn-physics-NMR
-  Main-is:           examples/src/NMR.hs
-  Build-depends:     base >= 4.5,
-                     learn-physics
+executable learn-physics-Projectile
+  main-is: examples/src/Projectile.hs
+  other-modules:
+      Paths_learn_physics
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base
+    , gnuplot
+    , learn-physics
+  default-language: Haskell2010
+
+executable learn-physics-eFieldLine2D
+  main-is: examples/src/eFieldLine2D.hs
+  other-modules:
+      Paths_learn_physics
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base
+    , gloss
+    , learn-physics
+  default-language: Haskell2010
+
+executable learn-physics-eFieldLine3D
+  main-is: examples/src/eFieldLine3D.hs
+  other-modules:
+      Paths_learn_physics
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base
+    , learn-physics
+    , not-gloss
+  default-language: Haskell2010
+
+executable learn-physics-sunEarth
+  main-is: examples/src/sunEarthRK4.hs
+  other-modules:
+      Paths_learn_physics
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base
+    , gloss
+    , learn-physics
+  default-language: Haskell2010
